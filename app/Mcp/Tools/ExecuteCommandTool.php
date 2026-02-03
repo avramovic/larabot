@@ -30,10 +30,8 @@ class ExecuteCommandTool extends Tool
         $command = $request->get('command');
         $cwd = $request->get('cwd') ?: getcwd();
 
-        $cmdArgs = explode(' ', $command);
-
-        // Use Symfony Process instead of exec
-        $process = new \Symfony\Component\Process\Process($cmdArgs, $cwd);
+        // Use fromShellCommandline to handle quoted arguments correctly
+        $process = \Symfony\Component\Process\Process::fromShellCommandline($command, $cwd);
         $process->run();
 
         $output = $process->getOutput();
