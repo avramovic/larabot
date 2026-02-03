@@ -4,6 +4,7 @@ namespace App\Mcp\Servers;
 
 use App\Mcp\Prompts\DescribeExecuteCommandPrompt;
 use App\Mcp\Tools\ExecuteCommandTool;
+use App\Mcp\Tools\OperatingSystemInfoTool;
 use Laravel\Mcp\Server;
 
 class CliServer extends Server
@@ -33,6 +34,7 @@ class CliServer extends Server
     protected array $tools = [
         //
         ExecuteCommandTool::class,
+        OperatingSystemInfoTool::class,
     ];
 
     /**
