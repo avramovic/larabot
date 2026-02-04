@@ -36,7 +36,7 @@ class WebSearchTool extends Tool
         $apiKey = config('services.brave_search.api_key');
 
         if (empty($apiKey)) {
-            return Response::error('Brave Search API key is not configured. Get it on https://brave.com/search/api/ and add it to config/services.php');
+            return Response::error('Brave Search API key is not configured. Get it on https://brave.com/search/api/ and add it to config/services.php or define BRAVE_SEARCH_API_KEY environment variable.');
         }
 
         try {
