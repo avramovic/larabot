@@ -25,10 +25,9 @@ class OperatingSystemInfoTool extends Tool
     public function handle(Request $request): ResponseFactory|Response
     {
         return Response::structured([
-            'PHP_OS'      => PHP_OS,
             'PHP_VERSION' => PHP_VERSION,
             'uname'       => php_uname(),
-            'cwd'         => getcwd(),
+            'cwd'         => base_path(),
         ]);
     }
 
@@ -47,15 +46,10 @@ class OperatingSystemInfoTool extends Tool
     public function outputSchema(JsonSchema $schema): array
     {
         return [
-            'PHP_OS' => $schema->string()
-                ->description('Operating system PHP is running on'),
-
             'PHP_VERSION' => $schema->string()
                 ->description('PHP version'),
-
             'uname' => $schema->string()
                 ->description('uname information about the operating system'),
-
             'cwd' => $schema->string()
                 ->description('Get current working directory'),
         ];

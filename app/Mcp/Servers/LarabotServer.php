@@ -4,15 +4,16 @@ namespace App\Mcp\Servers;
 
 use App\Mcp\Prompts\DescribeExecuteCommandPrompt;
 use App\Mcp\Tools\ExecuteCommandTool;
+use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use Laravel\Mcp\Server;
 
-class CliServer extends Server
+class LarabotServer extends Server
 {
     /**
      * The MCP server's name.
      */
-    protected string $name = 'Cli Server';
+    protected string $name = 'Larabot Server / OS: '  . PHP_OS;
 
     /**
      * The MCP server's version.
@@ -23,7 +24,9 @@ class CliServer extends Server
      * The MCP server's instructions for the LLM.
      */
     protected string $instructions = <<<'MARKDOWN'
-        Send a command line instruction to the machine.
+        - Send a command line instruction to the machine.
+        - Get MCP server (usually this machine) operating system info
+        - Make HTTP requests
     MARKDOWN;
 
     /**
@@ -32,9 +35,9 @@ class CliServer extends Server
      * @var array<int, class-string<\Laravel\Mcp\Server\Tool>>
      */
     protected array $tools = [
-        //
         ExecuteCommandTool::class,
         OperatingSystemInfoTool::class,
+        HttpRequestTool::class,
     ];
 
     /**

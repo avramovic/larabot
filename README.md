@@ -50,14 +50,14 @@ Example capabilities:
    ```bash
    php artisan serve
    ```
-   The server will be available at http://localhost:8000/mcp/cli
+   The server will be available at http://localhost:8000/mcp/larabot
 
 7. **Using the MCP server:**
    - The MCP server is available through API routes and can be used to execute commands, test, and develop AI agents.
    - Example: execute a CLI command via API or through an agent.
 
 ## Note
-- The MCP server has access to the local CLI, so use with caution.
+- ⚠️ The MCP server has access to the local CLI, so use with caution. ⚠️
 - It is recommended to use it in a development environment or on sandboxed machines.
 - Plan is to add more useful tools and features over time.
 

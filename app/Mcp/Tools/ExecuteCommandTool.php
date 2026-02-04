@@ -28,7 +28,7 @@ class ExecuteCommandTool extends Tool
             'command' => 'required|string',
         ]);
         $command = $request->get('command');
-        $cwd = $request->get('cwd') ?: getcwd();
+        $cwd = $request->get('cwd') ?: base_path();
 
         // Use fromShellCommandline to handle quoted arguments correctly
         $process = \Symfony\Component\Process\Process::fromShellCommandline($command, $cwd);
@@ -59,10 +59,10 @@ class ExecuteCommandTool extends Tool
     {
         return [
             'command' => $schema->string()
-                ->description('Command to run')
+                ->description('Command to run on system ('.php_uname().')')
                 ->required(),
             'cwd' => $schema->string()
-                ->description('Current working directory')
+                ->description('Current working directory, default is: '.base_path())
         ];
     }
 
@@ -71,10 +71,8 @@ class ExecuteCommandTool extends Tool
         return [
             'output' => $schema->string()
                 ->description('Output of the command (stdout)'),
-
             'errors' => $schema->string()
                 ->description('Errors of the command (stderr)'),
-
             'exit_code' => $schema->integer()
                 ->description('Exit code of the command'),
         ];
