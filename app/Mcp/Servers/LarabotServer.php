@@ -6,6 +6,7 @@ use App\Mcp\Prompts\DescribeExecuteCommandPrompt;
 use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
+use App\Mcp\Tools\WebSearchTool;
 use Laravel\Mcp\Server;
 
 class LarabotServer extends Server
@@ -38,6 +39,7 @@ class LarabotServer extends Server
         ExecuteCommandTool::class,
         OperatingSystemInfoTool::class,
         HttpRequestTool::class,
+        WebSearchTool::class,
     ];
 
     /**

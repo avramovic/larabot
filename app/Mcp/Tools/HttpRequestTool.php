@@ -40,9 +40,19 @@ class HttpRequestTool extends Tool
             'headers' => $headers,
         ];
 
+        $isJson = false;
+        if (isset($headers['Content-Type']) && str_contains($headers['Content-Type'], 'application/json')) {
+            $isJson = true;
+        }
+
         if (!in_array($method, ['GET', 'HEAD', 'OPTIONS'])) {
             if ($body = $request->get('body')) {
-                $options['form_params'] = $body;
+                if ($isJson) {
+                    // Accept array or string for JSON body
+                    $options['json'] = is_string($body) ? json_decode($body, true) : $body;
+                } else {
+                    $options['form_params'] = $body;
+                }
             }
         }
 
@@ -51,8 +61,6 @@ class HttpRequestTool extends Tool
         }
 
         try {
-
-//            return Response::error(json_encode($options, JSON_PRETTY_PRINT));
             $response = Http::withOptions([
                 'debug' => false,
                 'allow_redirects' => true,
@@ -62,10 +70,26 @@ class HttpRequestTool extends Tool
             return Response::error('HTTP request failed: ' . $e->getMessage());
         }
 
+        $contentType = $response->header('Content-Type');
+        $body = $response->body();
+
+        // Handle binary responses (images, pdf, etc.)
+        if (!str_starts_with($contentType, 'text/') && !str_contains($contentType, 'json') && !str_contains($contentType, 'xml')) {
+            $bodyBase64 = base64_encode($body);
+
+            return Response::structured([
+                'status'       => $response->status(),
+                'headers'      => $response->headers(),
+                'body_base64'  => $bodyBase64,
+                'content_type' => $contentType,
+            ]);
+        }
+
         return Response::structured([
-            'status'  => $response->status(),
-            'headers' => $response->headers(),
-            'body'    => $response->body(),
+            'status'       => $response->status(),
+            'headers'      => $response->headers(),
+            'body'         => $body,
+            'content_type' => $contentType,
         ]);
     }
 
@@ -86,7 +110,6 @@ class HttpRequestTool extends Tool
                 ->enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'])
                 ->default('GET'),
             'headers' => $schema->object()
-//                ->additionalProperties($schema->string())
                 ->description('Optional headers to include in the request'),
             'body' => $schema->object()
                 ->description('The body of the request for methods like POST, PUT, DELETE, PATCH'),
@@ -103,7 +126,11 @@ class HttpRequestTool extends Tool
             'headers' => $schema->object()
                 ->description('Response headers'),
             'body' => $schema->string()
-                ->description('Response body'),
+                ->description('Response body (if textual)'),
+            'body_base64' => $schema->string()
+                ->description('Base64-encoded response body (if binary)'),
+            'content_type' => $schema->string()
+                ->description('Response Content-Type header'),
         ];
     }
 }

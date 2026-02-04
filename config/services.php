@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -35,4 +34,7 @@ return [
         ],
     ],
 
+    'brave_search' => [
+        'api_key' => env('BRAVE_SEARCH_API_KEY'),
+    ],
 ];
