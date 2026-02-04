@@ -16,7 +16,8 @@ class WebSearchTool extends Tool
      */
     protected string $description = <<<'MARKDOWN'
         Search the interwebz using the Brave search API.
-        API key can be set in the config/services.php file.
+        API key can be set in the config/services.php file or defined as BRAVE_SEARCH_API_KEY environment variable.
+        Get your API key on https://brave.com/search/api/
     MARKDOWN;
 
     /**
