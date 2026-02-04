@@ -35,6 +35,10 @@ class HttpRequestTool extends Tool
         $method = $request->get('method', 'GET');
         $url = $request->get('url');
         $headers = $request->get('headers', []);
+        $headers = array_merge([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept'     => '*/*',
+        ], $headers);
 
         $options = [
             'headers' => $headers,
@@ -106,7 +110,7 @@ class HttpRequestTool extends Tool
                 ->format('uri')
                 ->required(),
             'method' => $schema->string()
-                ->description('The HTTP method to use (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)')
+                ->description('The HTTP method to use (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS). Default: GET')
                 ->enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'])
                 ->default('GET'),
             'headers' => $schema->object()

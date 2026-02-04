@@ -26,6 +26,9 @@ class WebSearchTool extends Tool
     {
         $request->validate([
             'query' => 'required|string',
+            'safesearch' => 'sometimes|string|in:off,moderate,strict',
+            'result_filter' => 'sometimes|string|in:web,news,videos,strict,locations,query,summarizer,infobox,faq,discussions,all',
+            'units' => 'sometimes|string|in:metric,imperial',
         ]);
 
         $url = 'https://api.search.brave.com/res/v1/web/search';
@@ -37,6 +40,11 @@ class WebSearchTool extends Tool
         }
 
         try {
+            $result_filter = $request->get('result_filter', 'web');
+            if ($result_filter === 'all') {
+                $result_filter = null;
+            }
+
             $response = Http::withOptions([
                 'debug' => false,
                 'allow_redirects' => true,
@@ -45,7 +53,10 @@ class WebSearchTool extends Tool
                     'X-Subscription-Token' => $apiKey,
                 ])
                 ->get($url, [
-                    'q' => $query,
+                    'q'             => $query,
+                    'safesearch'    => $request->get('safesearch', 'moderate'),
+                    'result_filter' => $result_filter,
+                    'units'         => $request->get('units', 'metric'),
                 ]);
         } catch (\Exception $e) {
             return Response::error('HTTP request failed: ' . $e->getMessage());
@@ -65,6 +76,18 @@ class WebSearchTool extends Tool
             'query' => $schema->string()
                 ->description('The search query string')
                 ->required(),
+            'result_filter' => $schema->string()
+                ->enum(['web', 'news', 'videos', 'strict', 'locations', 'query', 'summarizer', 'infobox', 'faq', 'discussions', 'all'])
+                ->description('Filter results by type (e.g., web, news, videos, locations)')
+                ->default('web'),
+            'safesearch' => $schema->string()
+                ->enum(['off', 'moderate', 'strict'])
+                ->description('The safesearch level (off, moderate, strict)')
+                ->default('moderate'),
+            'units' => $schema->string()
+                ->enum(['metric', 'imperial'])
+                ->description('Units for any measurements in results')
+                ->default('metric'),
         ];
     }
 }
