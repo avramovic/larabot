@@ -39,7 +39,9 @@ class OperatingSystemInfoTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            // No input parameters
+//            'dummy' => $schema->string()
+//                ->description('No input parameters, this is just a placeholder to satisfy the schema requirement')
+//                ->default('x'),
         ];
     }
 

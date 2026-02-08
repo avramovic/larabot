@@ -5,6 +5,7 @@ namespace App\Mcp\Servers;
 use App\Mcp\Prompts\DescribeExecuteCommandPrompt;
 use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
+use App\Mcp\Tools\ImageSearchTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\WebSearchTool;
 use Laravel\Mcp\Server;
@@ -40,6 +41,7 @@ class LarabotServer extends Server
         OperatingSystemInfoTool::class,
         HttpRequestTool::class,
         WebSearchTool::class,
+        ImageSearchTool::class,
     ];
 
     /**

@@ -3,19 +3,20 @@
 namespace App\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class WebSearchTool extends Tool
+class ImageSearchTool extends Tool
 {
     /**
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        Search the interwebz using the Brave search API.
+        Search the interwebz for images using the Brave search API.
         API key can be set in the config/services.php file or defined as BRAVE_SEARCH_API_KEY environment variable.
         Get your API key on https://brave.com/search/api/
     MARKDOWN;
@@ -26,13 +27,11 @@ class WebSearchTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $request->validate([
-            'query'         => 'required|string',
-            'safesearch'    => 'sometimes|string|in:off,moderate,strict',
-            'result_filter' => 'sometimes|string|in:web,videos',
-            'units'         => 'sometimes|string|in:metric,imperial',
+            'query' => 'required|string',
+            'safesearch' => 'sometimes|string|in:off,strict',
         ]);
 
-        $url = 'https://api.search.brave.com/res/v1/web/search';
+        $url = 'https://api.search.brave.com/res/v1/images/search';
         $query = $request->get('query');
         $apiKey = config('services.brave_search.api_key');
 
@@ -41,7 +40,6 @@ class WebSearchTool extends Tool
         }
 
         try {
-            $result_filter = $request->get('result_filter', 'web');
 
             $response = Http::withOptions([
                 'debug' => false,
@@ -52,15 +50,27 @@ class WebSearchTool extends Tool
                 ])
                 ->get($url, [
                     'q'             => $query,
-                    'safesearch'    => $request->get('safesearch', 'moderate'),
-                    'result_filter' => $result_filter,
-                    'units'         => $request->get('units', 'metric'),
+                    'safesearch'    => $request->get('safesearch', 'strict'),
                 ]);
         } catch (\Exception $e) {
             return Response::error('HTTP request failed: ' . $e->getMessage());
         }
 
-        return Response::structured($response->json($result_filter));
+        $result = $response->json();
+
+        $results = array_map(function ($item) {
+            return [
+                'title' => Arr::get($item, 'title'),
+                'image_url' => Arr::get($item, 'properties.url'),
+                'thumbnail' => [
+                    'url' => Arr::get($item, 'thumbnail.src'),
+                    'alt' => Arr::get($item, 'properties.placeholder'),
+                ],
+                'confidence' => Arr::get($item, 'confidence'),
+            ];
+        }, $result['results']);
+
+        return Response::structured(['results' => $results]);
     }
 
     /**
@@ -74,18 +84,10 @@ class WebSearchTool extends Tool
             'query' => $schema->string()
                 ->description('The search query string')
                 ->required(),
-            'result_filter' => $schema->string()
-                ->enum(['web', 'videos'])
-                ->description('Filter results by type (web or videos).')
-                ->default('web'),
             'safesearch' => $schema->string()
-                ->enum(['off', 'moderate', 'strict'])
-                ->description('The safe search level (off, moderate, strict)')
-                ->default('moderate'),
-            'units' => $schema->string()
-                ->enum(['metric', 'imperial'])
-                ->description('Units for any measurements in results')
-                ->default('metric'),
+                ->enum(['off', 'strict'])
+                ->description('The safe search level (off, strict)')
+                ->default('strict'),
         ];
     }
 
@@ -93,7 +95,7 @@ class WebSearchTool extends Tool
     {
         return [
             'results' => $schema->array()
-                ->description('The search results returned by the Brave Search API'),
+                ->description('The search results returned by the Brave Image Search API'),
         ];
     }
 }
