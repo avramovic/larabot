@@ -7,6 +7,10 @@ use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
+use App\Mcp\Tools\SchedulerAddTool;
+use App\Mcp\Tools\SchedulerDeleteTool;
+use App\Mcp\Tools\SchedulerListTool;
+use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\WebSearchTool;
 use Laravel\Mcp\Server;
 
@@ -42,6 +46,10 @@ class LarabotServer extends Server
         HttpRequestTool::class,
         WebSearchTool::class,
         ImageSearchTool::class,
+        SchedulerUpdateTool::class,
+        SchedulerAddTool::class,
+        SchedulerDeleteTool::class,
+        SchedulerListTool::class,
     ];
 
     /**

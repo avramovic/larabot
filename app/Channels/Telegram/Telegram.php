@@ -9,6 +9,7 @@ use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
+use Telegram\Bot\Objects\User;
 
 class Telegram extends BaseChannel
 {
@@ -60,6 +61,12 @@ class Telegram extends BaseChannel
             'timeout' => $timeout,
             'offset'  => $last_offset ? $last_offset + 1 : null,
         ]);
+    }
+
+
+    public function getBotInfo(): User
+    {
+        return $this->client->getMe();
     }
 
     public function getUpdate(?string $relation = null): Update|Collection|null

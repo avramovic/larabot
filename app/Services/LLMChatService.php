@@ -4,10 +4,14 @@ namespace App\Services;
 
 use App\Adapters\McpToolAdapter;
 use App\Enums\LLMProvider;
-use App\Mcp\Servers\LarabotServer;
 use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
+use App\Mcp\Tools\OperatingSystemInfoTool;
+use App\Mcp\Tools\SchedulerAddTool;
+use App\Mcp\Tools\SchedulerDeleteTool;
+use App\Mcp\Tools\SchedulerListTool;
+use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\WebSearchTool;
 use App\Models\Chat;
 use App\Models\Message;
@@ -20,7 +24,6 @@ use Soukicz\Llm\Client\LLMClient;
 use Soukicz\Llm\Client\ModelInterface;
 use Soukicz\Llm\Client\OpenAI\OpenAIClient;
 use Soukicz\Llm\Client\OpenAI\OpenAICompatibleClient;
-use Soukicz\Llm\Client\StopReason;
 use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\LLMRequest;
 use Soukicz\Llm\LLMResponse;
@@ -111,11 +114,18 @@ class LLMChatService
     public function getTools(): array
     {
         return [
+            // Basic tools
             (new McpToolAdapter(new WebSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(),
 //            (new McpToolAdapter(new OperatingSystemInfoTool()))->toLlmTool(),
             (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(),
+            // Scheduler tools
+            (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(),
+            (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(),
+            (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(),
+            (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(),
+            // Memories tool
         ];
     }
 

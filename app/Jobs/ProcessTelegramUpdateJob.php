@@ -31,6 +31,12 @@ class ProcessTelegramUpdateJob implements ShouldQueue
     {
         $telegram = new Telegram($this->update);
 
+        $bot_info = $telegram->getBotInfo();
+        Setting::updateOrCreate(
+            ['key' => 'telegram_bot_username'],
+            ['value' => $bot_info->first_name],
+        );
+
         \Log::debug('Processing Telegram update: ', $this->update->toArray());
 
         //safety check to ensure we only process messages from the configured chat and owner
@@ -55,7 +61,8 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if ($telegram_user->id != $telegram->owner_id) {
             \Log::warning("Received message from unauthorized source:", $telegram->getUpdate()->toArray());
-            $telegram->sendMessage($telegram->chat_id, "❌ {$telegram_user->first_name} is not in the sudoers file. This incident will be reported.");
+            $telegram->sendMessage($telegram_user->id, "❌ {$telegram_user->first_name} is not in the sudoers file. This incident will be reported.");
+            $telegram->sendMessage($telegram_user->id, "But you can get your own personal AI assistant from https://github.com/avramovic/larabot and set yourself as the owner of your own bot to start chatting with it!");
             return;
         }
 
@@ -122,34 +129,13 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 //            echo $finalResponse->getLastText();
         }
 
+        $message->save();
+        Setting::set('telegram_offset', $this->update['update_id']);
+
         $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
         $response_message->save();
 
         $telegram->sendMessage($telegram_chat->id, $response->getLastText());
-
-        $message->save();
-        Setting::set('telegram_offset', $this->update['update_id']);
-
-
-//        $waitForPromise = false;
-//        while ($waitForPromise) {
-//            // wait for the promise to complete
-//            sleep(10);
-//            $telegram->sendChatAction([
-//                'chat_id' => $this->update->getMessage()->getChat()->id,
-//                'action' => 'typing',
-//            ]);
-//            echo "Waiting for LLM response...\n";
-//
-//            $elapsed = microtime(true) - $start;
-//            if ($elapsed > 600) {
-//                $telegram->sendMessage([
-//                    'chat_id' => $this->update->getMessage()->getChat()->id,
-//                    'text' => "❌ Sorry, I'm taking too long to respond. Please try again later.",
-//                ]);
-//                $waitForPromise = false;
-//            }
-//        }
 
     }
 

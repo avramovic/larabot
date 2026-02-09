@@ -6,8 +6,6 @@ use App\Channels\Telegram\Telegram;
 use App\Jobs\ProcessTelegramUpdateJob;
 use App\Models\Setting;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
-use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use Telegram\Bot\Objects\Update;
 
