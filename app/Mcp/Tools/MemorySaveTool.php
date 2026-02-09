@@ -28,16 +28,34 @@ class MemorySaveTool extends Tool
         $request->validate([
             'title'    => ['required', 'string'],
             'contents' => ['required', 'string'],
-            'preload'  => ['required', 'bool'],
+//            'preload'  => ['required', 'bool'],
         ]);
 
         $task = Memory::create([
             'title'    => $request->get('title'),
             'contents' => $request->get('contents'),
-            'preload'  => $request->get('preload', false),
+            'preload'  => $this->checkTruthiness($request->get('preload', false)),
         ]);
 
         return Response::structured($task->toArray());
+    }
+
+    protected function checkTruthiness(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $lowerValue = strtolower($value);
+            return in_array($lowerValue, ['true', '1', 'yes'], true);
+        }
+
+        if (is_numeric($value)) {
+            return $value == 1;
+        }
+
+        return false;
     }
 
     /**
@@ -50,7 +68,7 @@ class MemorySaveTool extends Tool
         return [
             'title'    => $schema->string()->description('Memory title')->required(),
             'contents' => $schema->string()->description('Memory contents')->required(),
-            'preload'  => $schema->boolean()->description('Should be preloaded for every conversation')->default(false),
+            'preload'  => $schema->string()->description('Should be preloaded for every conversation (true/false)')->required(),
         ];
     }
 }
