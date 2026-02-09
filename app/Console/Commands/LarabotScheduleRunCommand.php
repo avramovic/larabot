@@ -6,7 +6,7 @@ use App\Jobs\ExecuteScheduledTaskJob;
 use App\Models\Task;
 use Illuminate\Console\Command;
 
-class RunScheduledTasksCommand extends Command
+class LarabotScheduleRunCommand extends Command
 {
     /**
      * The name and signature of the console command.

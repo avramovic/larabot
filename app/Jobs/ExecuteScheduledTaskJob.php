@@ -15,8 +15,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
      */
     public function __construct(protected Task $task)
     {
-
-
+        
         $task->decrement('repeat');
     }
 
