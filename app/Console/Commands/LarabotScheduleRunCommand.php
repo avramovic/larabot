@@ -34,7 +34,6 @@ class LarabotScheduleRunCommand extends Command
         $tasks = Task::where('repeat', '!=', 0)->get();
         /** @var Task $task */
         foreach ($tasks as $task) {
-            var_dump($task->id, $task->schedule, $task->isDue());
             if ($task->isDue()) {
                 // Dispatch the task for execution
                 $this->line('Dispatching task #'.$task->id.' for execution.');

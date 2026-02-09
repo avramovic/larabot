@@ -25,7 +25,7 @@ class McpToolAdapter
     public function toLlmTool(): CallbackToolDefinition
     {
         $inputSchema = [
-            'type' => 'object',
+            'type'       => 'object',
             'properties' => $this->getToolInputSchema(),
         ];
 

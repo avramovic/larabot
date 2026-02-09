@@ -26,10 +26,10 @@ class SchedulerUpdateTool extends Tool
         \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
 
         $request->validate([
-            'id' => ['required', 'integer', 'exists:tasks,id'],
+            'id'       => ['required', 'integer', 'exists:tasks,id'],
             'schedule' => ['string'],
-            'prompt' => ['string'],
-            'repeat' => ['integer'],
+            'prompt'   => ['string'],
+            'repeat'   => ['integer'],
         ]);
 
         $task = Task::find($request->get('id'));
@@ -54,7 +54,7 @@ class SchedulerUpdateTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id'   => $schema->integer()->description('ID of the task')->required(),
+            'id'       => $schema->integer()->description('ID of the task')->required(),
             'schedule' => $schema->string()->description('The cron expression defining the schedule.'),
             'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.'),
             'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),

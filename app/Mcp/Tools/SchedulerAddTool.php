@@ -15,7 +15,7 @@ class SchedulerAddTool extends Tool
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        Add a scheduled task to the system scheduler.
+        Add a scheduled task to the system scheduler. Schedule and prompt are required. Repeat is optional, default is -1 (infinite).
     MARKDOWN;
 
     /**
@@ -48,8 +48,8 @@ class SchedulerAddTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'schedule' => $schema->string()->description('The cron expression defining the schedule.')->required(),
-            'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.')->required(),
+            'schedule' => $schema->string()->description('REQUIRED. The cron expression defining the schedule, like: 0 8 * * *')->required(),
+            'prompt'   => $schema->string()->description('REQUIRED. The prompt to execute on the LLM model.')->required(),
             'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.')->default(-1),
         ];
     }

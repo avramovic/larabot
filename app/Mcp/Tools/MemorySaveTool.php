@@ -30,7 +30,7 @@ class MemorySaveTool extends Tool
         $request->validate([
             'title'    => ['required', 'string'],
             'contents' => ['required', 'string'],
-//            'preload'  => ['required', 'bool'],
+            'preload'  => ['string'],
         ]);
 
         $task = Memory::create([

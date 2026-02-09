@@ -4,7 +4,7 @@ return [
     'default_provider' => env('LLM_PROVIDER', 'custom'),
 
     'cache_prompts' => true,
-    'sliding_window' => -1, // Number of last messages to keep in conversation, -1 to keep all
+    'sliding_window' => env('SLIDING_WINDOW_SIZE', 50),
 
     'providers' => [
         'anthropic' => [
