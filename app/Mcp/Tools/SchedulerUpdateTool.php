@@ -53,9 +53,9 @@ class SchedulerUpdateTool extends Tool
     {
         return [
             'id'   => $schema->integer()->description('ID of the task')->required(),
-            'schedule' => $schema->string()->description('The cron expression defining the schedule.')->required(),
-            'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.')->required(),
-            'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.')->default(-1),
+            'schedule' => $schema->string()->description('The cron expression defining the schedule.'),
+            'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.'),
+            'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
         ];
     }
 }

@@ -7,6 +7,10 @@ use App\Enums\LLMProvider;
 use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
+use App\Mcp\Tools\MemoryDeleteTool;
+use App\Mcp\Tools\MemorySaveTool;
+use App\Mcp\Tools\MemorySearchTool;
+use App\Mcp\Tools\MemoryUpdateTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
@@ -118,7 +122,6 @@ class LLMChatService
             (new McpToolAdapter(new WebSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(),
-//            (new McpToolAdapter(new OperatingSystemInfoTool()))->toLlmTool(),
             (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(),
             // Scheduler tools
             (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(),
@@ -126,6 +129,10 @@ class LLMChatService
             (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(),
             (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(),
             // Memories tool
+            (new McpToolAdapter(new MemorySearchTool()))->toLlmTool(),
+            (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(),
+            (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(),
+            (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(),
         ];
     }
 

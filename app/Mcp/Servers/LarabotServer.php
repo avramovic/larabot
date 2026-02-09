@@ -6,6 +6,10 @@ use App\Mcp\Prompts\DescribeExecuteCommandPrompt;
 use App\Mcp\Tools\ExecuteCommandTool;
 use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
+use App\Mcp\Tools\MemoryDeleteTool;
+use App\Mcp\Tools\MemorySaveTool;
+use App\Mcp\Tools\MemorySearchTool;
+use App\Mcp\Tools\MemoryUpdateTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
@@ -46,10 +50,16 @@ class LarabotServer extends Server
         HttpRequestTool::class,
         WebSearchTool::class,
         ImageSearchTool::class,
+        //
         SchedulerUpdateTool::class,
         SchedulerAddTool::class,
         SchedulerDeleteTool::class,
         SchedulerListTool::class,
+        //
+        MemoryUpdateTool::class,
+        MemorySaveTool::class,
+        MemoryDeleteTool::class,
+        MemorySearchTool::class,
     ];
 
     /**
