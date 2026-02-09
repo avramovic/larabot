@@ -23,6 +23,8 @@ class SchedulerDeleteTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
+
         $request->validate([
             'id' => ['required', 'integer', 'exists:tasks,id'],
         ]);

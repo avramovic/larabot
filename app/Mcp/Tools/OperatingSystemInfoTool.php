@@ -24,6 +24,8 @@ class OperatingSystemInfoTool extends Tool
      */
     public function handle(Request $request): ResponseFactory|Response
     {
+        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
+
         return Response::structured([
             'PHP_VERSION' => PHP_VERSION,
             'uname'       => php_uname(),

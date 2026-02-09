@@ -15,19 +15,7 @@ class SchedulerAddTool extends Tool
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        Add a scheduled task to the system scheduler. Respond with the following JSON:
-
-        ```json
-        {
-            "should_notify": true,
-            "message": "LLM response to be sent as a notification when the scheduled task runs."
-        }
-        ```
-
-        - should_notify indicates whether the LLM response should be sent as a notification when the scheduled task runs. true/false
-            For example if the scheduled task is to check for new unread emails every hour, the should_notify would be true to indicate
-            that this message should be sent as a notification when the scheduled task runs, but only if there actually are new unread emails.
-        - message is the LLM response to be sent as a notification when the scheduled task runs.
+        Add a scheduled task to the system scheduler.
     MARKDOWN;
 
     /**
@@ -35,6 +23,8 @@ class SchedulerAddTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
+
         $request->validate([
             'schedule' => ['required', 'string'],
             'prompt' => ['required', 'string'],

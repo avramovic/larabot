@@ -23,6 +23,8 @@ class SchedulerListTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
+
         $tasks = Task::all();
 
         return Response::structured(['tasks' => $tasks->toArray()]);

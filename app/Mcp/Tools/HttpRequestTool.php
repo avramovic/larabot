@@ -23,13 +23,14 @@ class HttpRequestTool extends Tool
      */
     public function handle(Request $request): ResponseFactory|Response
     {
-        //
+        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
+
         $request->validate([
             'url'     => 'required|url',
             'method'  => 'sometimes|string|in:GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS',
             'headers' => 'sometimes|array',
             'body'    => 'sometimes|array',
-            'query'    => 'sometimes|array',
+            'query'   => 'sometimes|array',
         ]);
 
         $method = $request->get('method', 'GET');
@@ -66,7 +67,7 @@ class HttpRequestTool extends Tool
 
         try {
             $response = Http::withOptions([
-                'debug' => false,
+                'debug'           => false,
                 'allow_redirects' => true,
             ])
                 ->send($method, $url, $options);
@@ -78,7 +79,8 @@ class HttpRequestTool extends Tool
         $body = $response->body();
 
         // Handle binary responses (images, pdf, etc.)
-        if (!str_starts_with($contentType, 'text/') && !str_contains($contentType, 'json') && !str_contains($contentType, 'xml')) {
+        if (!str_starts_with($contentType, 'text/') && !str_contains($contentType,
+                'json') && !str_contains($contentType, 'xml')) {
             $bodyBase64 = base64_encode($body);
 
             return Response::structured([
@@ -105,19 +107,19 @@ class HttpRequestTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'url' => $schema->string()
+            'url'     => $schema->string()
                 ->description('The URL to send the HTTP request to')
                 ->format('uri')
                 ->required(),
-            'method' => $schema->string()
+            'method'  => $schema->string()
                 ->description('The HTTP method to use (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS). Default: GET')
                 ->enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'])
                 ->default('GET'),
             'headers' => $schema->object()
                 ->description('Optional headers to include in the request'),
-            'body' => $schema->object()
+            'body'    => $schema->object()
                 ->description('The body of the request for methods like POST, PUT, DELETE, PATCH'),
-            'query' => $schema->object()
+            'query'   => $schema->object()
                 ->description('The query parameters for GET, HEAD, OPTIONS requests'),
         ];
     }
@@ -125,13 +127,13 @@ class HttpRequestTool extends Tool
     public function outputSchema(JsonSchema $schema): array
     {
         return [
-            'status' => $schema->integer()
+            'status'       => $schema->integer()
                 ->description('HTTP status code'),
-            'headers' => $schema->object()
+            'headers'      => $schema->object()
                 ->description('Response headers'),
-            'body' => $schema->string()
+            'body'         => $schema->string()
                 ->description('Response body (if textual)'),
-            'body_base64' => $schema->string()
+            'body_base64'  => $schema->string()
                 ->description('Base64-encoded response body (if binary)'),
             'content_type' => $schema->string()
                 ->description('Response Content-Type header'),
