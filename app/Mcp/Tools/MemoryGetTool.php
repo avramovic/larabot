@@ -10,13 +10,13 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class MemorySearchTool extends Tool
+class MemoryGetTool extends Tool
 {
     /**
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        Search memories by comma separated list of keywords.
+        Get a memory by its ID.
     MARKDOWN;
 
     /**
@@ -27,21 +27,13 @@ class MemorySearchTool extends Tool
         \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
 
         $request->validate([
-            'keywords' => ['required', 'string'],
+            'id' => ['required', 'integer', 'exists:memories,id'],
         ]);
 
-        $keywords = explode(',', $request->get('keywords'));
-        $memories = Memory::where('preload', false)
-            ->where(function ($query) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $query->orWhere('contents', 'like', '%' . trim($keyword) . '%')
-                        ->orWhere('title', 'like', '%' . trim($keyword) . '%');
-                }
-            });
+        $id = (int) $request->get('id');
+        $memory = Memory::find($id);
 
-        $memories = $memories->get();
-
-        return Response::structured(['memories' => $memories->toArray()]);
+        return Response::structured($memory->toArray());
     }
 
     /**
@@ -52,7 +44,7 @@ class MemorySearchTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'keywords' => $schema->string()->description('A comma separated list of keywords')->required(),
+            'id' => $schema->integer()->description('REQUIRED. ID of memory to retrieve')->required(),
         ];
     }
 }

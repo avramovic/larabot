@@ -9,7 +9,7 @@ use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
 use App\Mcp\Tools\MemoryDeleteTool;
 use App\Mcp\Tools\MemorySaveTool;
-use App\Mcp\Tools\MemorySearchTool;
+use App\Mcp\Tools\MemoryGetTool;
 use App\Mcp\Tools\MemoryUpdateTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
@@ -129,7 +129,7 @@ class LLMChatService
             (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(),
             (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(),
             // Memories tool
-            (new McpToolAdapter(new MemorySearchTool()))->toLlmTool(),
+            (new McpToolAdapter(new MemoryGetTool()))->toLlmTool(),
             (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(),
             (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(),
             (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(),

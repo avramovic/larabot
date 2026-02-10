@@ -8,7 +8,7 @@ use App\Mcp\Tools\HttpRequestTool;
 use App\Mcp\Tools\ImageSearchTool;
 use App\Mcp\Tools\MemoryDeleteTool;
 use App\Mcp\Tools\MemorySaveTool;
-use App\Mcp\Tools\MemorySearchTool;
+use App\Mcp\Tools\MemoryGetTool;
 use App\Mcp\Tools\MemoryUpdateTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
@@ -59,7 +59,7 @@ class LarabotServer extends Server
         MemoryUpdateTool::class,
         MemorySaveTool::class,
         MemoryDeleteTool::class,
-        MemorySearchTool::class,
+        MemoryGetTool::class,
     ];
 
     /**

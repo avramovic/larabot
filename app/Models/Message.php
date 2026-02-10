@@ -51,14 +51,15 @@ class Message extends Model
         $template = file_get_contents(base_path('soul.md'));
 
         $intro = Blade::render($template, [
-            'OS'              => PHP_OS_FAMILY === 'Darwin' ? 'macOS' : PHP_OS_FAMILY,
-            'uname'           => php_uname('n'),
-            'now'             => fn() => now(),
-            'cwd'             => base_path(),
-            'memories'        => Memory::where('preload', true)->get(),
-            'bot_name'        => Setting::get('bot_name'),
-            'user_first_name' => Setting::get('user_first_name'),
-            'user_last_name'  => Setting::get('user_last_name'),
+            'OS'                 => PHP_OS_FAMILY === 'Darwin' ? 'macOS' : PHP_OS_FAMILY,
+            'uname'              => php_uname('n'),
+            'now'                => fn() => now(),
+            'cwd'                => base_path(),
+            'important_memories' => Memory::where('preload', true)->get(),
+            'other_memories'     => Memory::where('preload', false)->get(),
+            'bot_name'           => Setting::get('bot_name'),
+            'user_first_name'    => Setting::get('user_first_name'),
+            'user_last_name'     => Setting::get('user_last_name'),
         ], true);
 
         return self::make([

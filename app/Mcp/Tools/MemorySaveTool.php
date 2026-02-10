@@ -68,9 +68,9 @@ class MemorySaveTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'title'    => $schema->string()->description('Memory title')->required(),
-            'contents' => $schema->string()->description('Memory contents')->required(),
-            'preload'  => $schema->string()->description('Should be preloaded for every conversation (true/false)')->required(),
+            'title'    => $schema->string()->description('REQUIRED. Memory title')->required(),
+            'contents' => $schema->string()->description('REQUIRED. Memory contents')->required(),
+            'preload'  => $schema->string()->description('REQUIRED. Should be preloaded for every conversation (true/false)')->required(),
         ];
     }
 }
