@@ -26,9 +26,29 @@ class LarabotForgetCommand extends Command
      */
     public function handle()
     {
-        if ($this->confirm('Are you sure you want to clear all the context?')) {
-            Message::delete();
-            $this->info('Context cleared successfully.');
+        $what = $this->choice('What do you want to clear?', ['Nothing', 'Context', 'Memories', 'Settings', 'Everything'], 'Nothing');
+
+        switch ($what) {
+            case 'Context':
+                \DB::table('messages')->truncate();
+                $this->info('Context cleared successfully.');
+                break;
+            case 'Memories':
+                \DB::table('memories')->truncate();
+                $this->info('Memories cleared successfully.');
+                break;
+            case 'Settings':
+                \DB::table('settings')->truncate();
+                $this->info('Settings cleared successfully.');
+                break;
+            case 'Everything':
+                \DB::table('messages')->truncate();
+                \DB::table('memories')->truncate();
+                \DB::table('settings')->truncate();
+                $this->info('All context, memories and settings cleared successfully.');
+                break;
+            default:
+                $this->info('Nothing was cleared.');
         }
     }
 }

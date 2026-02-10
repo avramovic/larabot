@@ -19,7 +19,7 @@ class Message extends Model
     {
         return self::make([
             'role'       => $role,
-            'contents'   => $message->text,
+            'contents'   => $message->text ?? '',
             'uuid'       => $message->messageId,
             'created_at' => now(),
         ]);

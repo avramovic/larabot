@@ -4,7 +4,7 @@ return [
     'default_provider' => env('LLM_PROVIDER', 'custom'),
 
     'cache_prompts' => true,
-    'sliding_window' => env('SLIDING_WINDOW_SIZE', 50),
+    'sliding_window' => env('SLIDING_WINDOW_SIZE', 100),
 
     'providers' => [
         'anthropic' => [
@@ -19,7 +19,7 @@ return [
         ],
         // Custom OpenAI compatible provider example, you can for example define ollama models here
         'custom'    => [
-            'api_key'  => env('CUSTOM_API_KEY', 'ollama'),
+            'api_key'  => env('CUSTOM_API_KEY', 'skip this if using ollama'),
             'base_url' => env('CUSTOM_BASE_URL', 'http://localhost:11434/v1'),
         ],
     ],

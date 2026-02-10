@@ -5,8 +5,10 @@ namespace App\Channels\Telegram;
 use App\Channels\ChatInterface;
 use App\Models\Setting;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
 use Telegram\Bot\Objects\User;
@@ -16,7 +18,6 @@ class Telegram implements ChatInterface
     public Api $client;
     public ?string $chat_id;
     public ?string $owner_id;
-
     protected ?Update $update;
 
     public function __construct(?Update $update = null)
@@ -77,5 +78,42 @@ class Telegram implements ChatInterface
     public function getUpdate(?string $relation = null): Update|Collection|null
     {
         return $this->update ? ($relation ? $this->update->getMessage()->{$relation} : $this->update) : null;
+    }
+
+    public function sendPhoto(string|InputFile $photo): Message
+    {
+        return $this->client->sendPhoto([
+            'chat_id' => $this->chat_id,
+            'photo'   => $photo instanceof InputFile ? $photo : InputFile::create($photo),
+        ]);
+    }
+
+    public function sendVideo(string|InputFile $video): Message
+    {
+        return $this->client->sendVideo([
+            'chat_id' => $this->chat_id,
+            'video'   => $video instanceof InputFile ? $video : InputFile::create($video),
+        ]);
+    }
+
+    public function sendAudio(string|InputFile $audio): Message
+    {
+        return $this->client->sendAudio([
+            'chat_id' => $this->chat_id,
+            'audio'   => $audio instanceof InputFile ? $audio : InputFile::create($audio),
+        ]);
+    }
+
+    public function sendFile(string|InputFile $document): Message
+    {
+        return $this->client->sendDocument([
+            'chat_id' => $this->chat_id,
+            'document'   => $document instanceof InputFile ? $document : InputFile::create($document),
+        ]);
+    }
+
+    public function downloadFile(string $file_id): string
+    {
+        return $this->client->downloadFile($file_id, sys_get_temp_dir().'/'.Str::uuid());
     }
 }

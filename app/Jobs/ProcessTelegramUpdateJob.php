@@ -9,6 +9,7 @@ use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Soukicz\Llm\Client\StopReason;
+use Soukicz\Llm\Message\LLMMessage;
 use Telegram\Bot\Objects\Update;
 
 class ProcessTelegramUpdateJob implements ShouldQueue
@@ -72,14 +73,42 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         $telegram_message = $this->update->getMessage();
         if (Message::where('uuid', $telegram_message->messageId)->exists()) {
-            \Log::warning("Received duplicate message, ignoring:", ['message_id' => $telegram_message->id]);
+            \Log::warning("Received duplicate message, ignoring:", ['message_id' => $telegram_message->messageId]);
 
             return;
         }
 
-        $message = Message::fromTelegramMessage($telegram_message);
         $conversation = $chatService->getConversation(config('llm.sliding_window', -1));
-        $conversation = $conversation->withMessage($message->toLLMMessage());
+
+        if (isset($telegram_message->photo)) {
+            $photo = $telegram_message->photo->sortBy('file_size')->last();
+            $downloaded_file = $telegram->downloadFile($photo['file_id']);
+            \Log::warning("Received photo from telegram: ".$downloaded_file, $telegram->getUpdate()->toArray());
+            $conversation = $conversation->withMessage(LLMMessage::createFromSystemString('Received a photo: '.$downloaded_file));
+        }
+
+        if (isset($telegram_message->document)) {
+
+        }
+
+        if (isset($telegram_message->audio)) {
+
+        }
+
+        if (isset($telegram_message->video)) {
+
+        }
+
+        if (isset($telegram_message->voice)) {
+
+        }
+
+
+        if (isset($telegram_message->text)) {
+            $message = Message::fromTelegramMessage($telegram_message);
+            $conversation = $conversation->withMessage($message->toLLMMessage());
+        }
+
 
         try {
             $response = $chatService->send($conversation);
@@ -90,49 +119,14 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             return;
         }
 
-        if ($response->getStopReason() == StopReason::TOOL_USE) {
-            // Add the assistant's response (including tool use) to conversation
-            $tool_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
-            $tool_message->save();
-            $conversation = $conversation->withMessage($tool_message->toLLMMessage());
 
-            \Log::debug('LLM requested tool use, processing tools...',
-                $response->getConversation()->getLastMessage()->jsonSerialize());
 
-            // Execute the tool and add result
-//            foreach ($response->getLastMessage()->getContents()->getToolUses() as $toolUse) {
-//                $tool = $tools[$toolUse->getName()] ?? null;
-//
-//                if ($tool) {
-//                    $result = $tool->handle($toolUse->getInput());
-//                    $conversation = $conversation->withMessage(
-//                        LLMMessage::createFromUser(
-//                            new LLMMessageContents([
-//                                new LLMMessageToolResult(
-//                                    toolUseId: $toolUse->getId(),
-//                                    content: $result,
-//                                    isError: false
-//                                )
-//                            ])
-//                        )
-//                    );
-//                }
-//            }
-
-            // Continue the conversation
-//            $finalResponse = $agentClient->run(
-//                client: $client,
-//                request: new LLMRequest(
-//                    model: $model,
-//                    conversation: $conversation,
-//                    tools: [$calculator]
-//                )
-//            );
-//
-//            echo $finalResponse->getLastText();
+        if (isset($message)) {
+            $message->save();
         }
 
-        $message->save();
+
+
         Setting::set('telegram_offset', $this->update['update_id']);
 
         $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());

@@ -16,6 +16,7 @@ use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
 use App\Mcp\Tools\SchedulerListTool;
 use App\Mcp\Tools\SchedulerUpdateTool;
+use App\Mcp\Tools\SendFileTool;
 use App\Mcp\Tools\WebSearchTool;
 use App\Models\Chat;
 use App\Models\Message;
@@ -123,6 +124,7 @@ class LLMChatService
             (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(),
             (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(),
+            (new McpToolAdapter(new SendFileTool()))->toLlmTool(),
             // Scheduler tools
             (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(),
             (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(),
