@@ -61,10 +61,10 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if ($telegram_user->id != $telegram->owner_id) {
             \Log::warning("Received message from unauthorized source:", $telegram->getUpdate()->toArray());
-            $owner_name = Setting::get("user_first_name");
+            $owner_name = Setting::get('user_first_name', '[redacted]');
             $telegram->client->sendMessage([
                 'chat_id' => $telegram_user->id,
-                'message' => "✋ Hi {$telegram_user->first_name}! I am currently configured to only respond to my owner ([{$owner_name}](tg://user?id={$telegram->owner_id})). If you think this is a mistake, please contact the owner of this bot. Or get your own at https://github.com/avramovic/larabot"
+                'message' => "✋ Hi {$telegram_user->first_name}! I am currently configured to only respond to my owner ({$owner_name}). If you think this is a mistake, please contact the owner of this bot. Or get your own at https://github.com/avramovic/larabot"
             ]);
 
             return;
@@ -138,8 +138,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
         $response_message->save();
 
-        $telegram->sendMessage($telegram_chat->id, $response->getLastText());
-
+        $telegram->sendMessage($response->getLastText());
     }
 
 }

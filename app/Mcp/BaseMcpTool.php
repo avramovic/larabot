@@ -3,8 +3,9 @@
 namespace App\Mcp;
 
 use App\Channels\ChatInterface;
+use Laravel\Mcp\Server\Tool;
 
-abstract class BaseMcpTool
+abstract class BaseMcpTool extends Tool
 {
     protected ChatInterface $chat;
 
