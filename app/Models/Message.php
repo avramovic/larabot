@@ -74,7 +74,7 @@ class Message extends Model
     This is a tool execution session. Here's what he user asked to do:
     "$task_prompt"
 
-    When the tool execution finishes respond with the following JSON ONLY:
+    When the tool execution finishes respond with the following JSON ONLY (no markdown):
 
     {
         "should_notify": true,
