@@ -2,7 +2,7 @@
 
 namespace App\Channels;
 
-i'use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Objects\Message;
 
 interface ChatInterface
