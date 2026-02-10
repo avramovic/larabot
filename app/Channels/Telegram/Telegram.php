@@ -2,7 +2,7 @@
 
 namespace App\Channels\Telegram;
 
-use App\Channels\BaseChannel;
+use App\Channels\ChatInterface;
 use App\Models\Setting;
 use Illuminate\Support\Collection;
 use Telegram\Bot\Api;
@@ -11,9 +11,9 @@ use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
 use Telegram\Bot\Objects\User;
 
-class Telegram extends BaseChannel
+class Telegram implements ChatInterface
 {
-    protected Api $client;
+    public Api $client;
     public ?string $chat_id;
     public ?string $owner_id;
 
@@ -33,23 +33,28 @@ class Telegram extends BaseChannel
     }
 
 
-    public function sendMessage(mixed $chat_id, string $message): Message
+    /**
+     * @throws TelegramSDKException
+     */
+    public function sendMessage(string $message): Message
     {
         return $this->client->sendMessage([
-            'chat_id' => $chat_id,
+            'chat_id' => $this->chat_id,
             'text'    => $message,
         ]);
     }
 
-    /**
-     * @throws TelegramSDKException
-     */
-    public function sendChatAction(mixed $chat_id, string $action): mixed
+    public function sendChatAction(string $action = 'typing'): bool
     {
-        return $this->client->sendChatAction([
-            'chat_id' => $chat_id,
-            'action'  => $action,
-        ]);
+        try {
+            return $this->client->sendChatAction([
+                'chat_id' => $this->chat_id,
+                'action'  => $action,
+            ]);
+        } catch (TelegramSDKException $e) {
+            \Log::error("Failed to send chat action to Telegram: " . $e->getMessage(), ['trace' => $e->getTrace()]);
+            return false;
+        }
     }
 
     /**

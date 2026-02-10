@@ -2,14 +2,15 @@
 
 namespace App\Mcp\Tools;
 
+use App\Channels\ChatInterface;
+use App\Mcp\BaseMcpTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class HttpRequestTool extends Tool
+class HttpRequestTool extends BaseMcpTool
 {
     /**
      * The tool's description.
@@ -65,6 +66,8 @@ class HttpRequestTool extends Tool
             $options['query'] = $query;
         }
 
+        $this->chat->sendChatAction();
+
         try {
             $response = Http::withOptions([
                 'debug'           => false,
@@ -108,7 +111,7 @@ class HttpRequestTool extends Tool
     {
         return [
             'url'     => $schema->string()
-                ->description('The URL to send the HTTP request to')
+                ->description('REQUIRED. The URL to send the HTTP request to')
                 ->format('uri')
                 ->required(),
             'method'  => $schema->string()

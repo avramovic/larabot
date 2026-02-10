@@ -56,7 +56,7 @@ class Message extends Model
             'now'             => fn() => now(),
             'cwd'             => base_path(),
             'memories'        => Memory::where('preload', true)->get(),
-            'bot_name'        => Setting::get('telegram_bot_name'),
+            'bot_name'        => Setting::get('bot_name'),
             'user_first_name' => Setting::get('user_first_name'),
             'user_last_name'  => Setting::get('user_last_name'),
         ], true);

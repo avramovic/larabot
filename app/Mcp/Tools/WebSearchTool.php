@@ -2,14 +2,14 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\BaseMcpTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class WebSearchTool extends Tool
+class WebSearchTool extends BaseMcpTool
 {
     /**
      * The tool's description.
@@ -36,14 +36,16 @@ class WebSearchTool extends Tool
 
         $url = 'https://api.search.brave.com/res/v1/web/search';
         $query = $request->get('query');
+        $result_filter = $request->get('result_filter', 'web');
         $apiKey = config('services.brave_search.api_key');
 
         if (empty($apiKey)) {
             return Response::error('Brave Search API key is not configured. Get it on https://brave.com/search/api/ and add it to config/services.php or define BRAVE_SEARCH_API_KEY environment variable.');
         }
 
+        $this->chat->sendChatAction();
+
         try {
-            $result_filter = $request->get('result_filter', 'web');
 
             $response = Http::withOptions([
                 'debug' => false,
@@ -74,7 +76,7 @@ class WebSearchTool extends Tool
     {
         return [
             'query' => $schema->string()
-                ->description('The search query string')
+                ->description('REQUIRED. The search query string')
                 ->required(),
             'result_filter' => $schema->string()
                 ->enum(['web', 'videos'])

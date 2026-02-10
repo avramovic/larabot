@@ -2,15 +2,15 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\BaseMcpTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class ImageSearchTool extends Tool
+class ImageSearchTool extends BaseMcpTool
 {
     /**
      * The tool's description.
@@ -41,8 +41,9 @@ class ImageSearchTool extends Tool
             return Response::error('Brave Search API key is not configured. Get it on https://brave.com/search/api/ and add it to config/services.php or define BRAVE_SEARCH_API_KEY environment variable.');
         }
 
-        try {
+        $this->chat->sendChatAction();
 
+        try {
             $response = Http::withOptions([
                 'debug' => false,
                 'allow_redirects' => true,
@@ -84,7 +85,7 @@ class ImageSearchTool extends Tool
     {
         return [
             'query' => $schema->string()
-                ->description('The search query string')
+                ->description('REQUIRED. The search query string')
                 ->required(),
             'safesearch' => $schema->string()
                 ->enum(['off', 'strict'])
