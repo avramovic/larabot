@@ -26,9 +26,6 @@ class LarabotForgetCommand extends Command
      */
     public function handle()
     {
-        $this->note('This command will clear all the context by deleting all messages. Memories and settings will be preserved.');
-        $this->pause('test');
-        $this->alert('text');
         if ($this->confirm('Are you sure you want to clear all the context?')) {
             Message::delete();
             $this->info('Context cleared successfully.');
