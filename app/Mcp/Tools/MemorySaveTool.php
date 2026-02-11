@@ -2,15 +2,15 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\BaseMcpTool;
 use App\Models\Memory;
 use App\Models\Task;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class MemorySaveTool extends Tool
+class MemorySaveTool extends BaseMcpTool
 {
     /**
      * The tool's description.
@@ -38,24 +38,6 @@ class MemorySaveTool extends Tool
         ]);
 
         return Response::structured($task->toArray());
-    }
-
-    protected function checkTruthiness(mixed $value): bool
-    {
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $lowerValue = strtolower($value);
-            return in_array($lowerValue, ['true', '1', 'yes'], true);
-        }
-
-        if (is_numeric($value)) {
-            return $value == 1;
-        }
-
-        return false;
     }
 
     /**

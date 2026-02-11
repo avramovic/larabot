@@ -19,7 +19,7 @@ This can help you automate tasks and reminders for the user.
 Preloaded memories:
 @foreach($important_memories as $memory)
 ---
-# {{ $memory->title }} (id: {{ $memory->id }})
+# {{ $memory->title }} (id: {{ $memory->id }}) ({{ $memory->updated_at->toDateTimeString() }})
 
 {{ $memory->contents }}
 @endforeach
@@ -28,6 +28,6 @@ Preloaded memories:
 Less important memories which you can retrieve when needed:
 @foreach($other_memories as $memory)
 ---
-# {{ $memory->title }} - id: {{ $memory->id }}
+# {{ $memory->title }} - id: {{ $memory->id }} ({{ $memory->updated_at->toDateTimeString() }})
 @endforeach
 ---

@@ -2,14 +2,14 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\BaseMcpTool;
 use App\Models\Task;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
-class SchedulerUpdateTool extends Tool
+class SchedulerUpdateTool extends BaseMcpTool
 {
     /**
      * The tool's description.
@@ -28,6 +28,7 @@ class SchedulerUpdateTool extends Tool
             'schedule' => ['string'],
             'prompt'   => ['string'],
             'repeat'   => ['integer'],
+            'enabled'  => ['string'],
         ]);
 
         $task = Task::find($request->get('id'));
@@ -39,6 +40,7 @@ class SchedulerUpdateTool extends Tool
             'schedule' => $request->get('schedule', $task->schedule),
             'prompt'   => $request->get('prompt', $task->prompt),
             'repeat'   => $request->get('repeat', $task->repeat),
+            'enabled'  => $this->checkTruthiness($request->get('enabled', $task->enabled)),
         ]);
 
         return Response::structured($task->toArray());
@@ -52,10 +54,11 @@ class SchedulerUpdateTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id'       => $schema->integer()->description('ID of the task')->required(),
+            'id'       => $schema->integer()->description('REQUIRED. ID of the task')->required(),
             'schedule' => $schema->string()->description('The cron expression defining the schedule.'),
             'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.'),
             'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
+            'enabled'  => $schema->string()->description('Whether the task is enabled or not. true/false'),
         ];
     }
 }

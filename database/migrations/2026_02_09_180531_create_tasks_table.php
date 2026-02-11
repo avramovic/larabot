@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('schedule');
             $table->string('prompt');
             $table->integer('repeat')->default(-1);
+            $table->boolean('enabled')->default(true);
             $table->timestamps();
         });
     }

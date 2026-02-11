@@ -108,6 +108,7 @@ MARKDOWN;
         return self::make([
             'role'     => 'user',
             'contents' => $prompt,
+            'uuid'     => Str::uuid(),
         ]);
     }
 

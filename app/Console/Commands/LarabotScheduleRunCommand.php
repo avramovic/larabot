@@ -45,8 +45,10 @@ class LarabotScheduleRunCommand extends Command
         }
 
         Task::where('repeat', 0)->delete();
+        $tasks = Task::where('repeat', '!=', 0)
+            ->where('enabled', true)
+            ->get();
 
-        $tasks = Task::where('repeat', '!=', 0)->get();
         /** @var Task $task */
         foreach ($tasks as $task) {
             if ($task->isDue()) {

@@ -25,7 +25,7 @@ class LarabotCronCommand extends Command
      */
     public function handle()
     {
-        $this->line('Running Larabot cron jobs... (Ctrl+C to stop)');
+        $this->line('Running Larabot scheduled tasks... (Ctrl+C to stop)');
 
         while (true) {
             $this->call('larabot:schedule:run', ['--silent' => true]);
