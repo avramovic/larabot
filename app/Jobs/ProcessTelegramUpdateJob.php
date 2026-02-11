@@ -38,7 +38,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             ['value' => $bot_info->first_name],
         );
 
-        \Log::debug('Processing Telegram update: ', $this->update->toArray());
+        \Log::info('Processing Telegram update: ', $this->update->toArray());
 
         //safety check to ensure we only process messages from the configured chat and owner
         $telegram_user = $telegram->getUpdate('from');

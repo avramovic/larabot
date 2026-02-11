@@ -37,7 +37,7 @@ class McpToolAdapter
             inputSchema: $inputSchema,
             handler: function (array $input): LLMMessageContents {
                 /** @var Response|ResponseFactory $response */
-                \Log::debug("[TOOL CALL] {$this->tool->name()} tool called with params: ", $input);
+                \Log::info("[TOOL CALL] {$this->tool->name()} tool called with params: ", $input);
                 try {
                     $this->chat->sendChatAction();
                     $response = $this->tool->handle(new \Laravel\Mcp\Request($input));
@@ -51,7 +51,7 @@ class McpToolAdapter
 
                     return LLMMessageContents::fromString($response->content());
                 } catch (\Exception $exception) {
-                    \Log::debug("[TOOL CALL] {$this->tool->name()} tool execution failed: " . $exception->getMessage(), ['trace' => $exception->getTrace()]);
+                    \Log::error("[TOOL CALL] {$this->tool->name()} tool execution failed: " . $exception->getMessage(), ['trace' => $exception->getTrace()]);
                     return LLMMessageContents::fromErrorString('Tool execution failed: ' . $exception->getMessage());
                 }
             },

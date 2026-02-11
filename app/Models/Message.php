@@ -46,17 +46,25 @@ class Message extends Model
         };
     }
 
-    public static function systemIntroductoryMessage(): self
+    public static function systemIntroductoryMessage(bool $preload_memories = true): self
     {
         $template = file_get_contents(base_path('soul.md'));
+
+        if ($preload_memories) {
+            $important_memories = Memory::where('preload', true)->get();
+            $other_memories = Memory::where('preload', false)->get();
+        } else {
+            $important_memories = collect();
+            $other_memories = Memory::all();
+        }
 
         $intro = Blade::render($template, [
             'OS'                 => PHP_OS_FAMILY === 'Darwin' ? 'macOS' : PHP_OS_FAMILY,
             'uname'              => php_uname('n'),
             'now'                => fn() => now(),
             'cwd'                => base_path(),
-            'important_memories' => Memory::where('preload', true)->get(),
-            'other_memories'     => Memory::where('preload', false)->get(),
+            'important_memories' => $important_memories,
+            'other_memories'     => $other_memories,
             'bot_name'           => Setting::get('bot_name'),
             'user_first_name'    => Setting::get('user_first_name'),
             'user_last_name'     => Setting::get('user_last_name'),
@@ -72,10 +80,7 @@ class Message extends Model
     {
         $task_prompt = $task->prompt;
         $prompt = <<<MARKDOWN
-    This is a tool execution session. Here's what he user asked to do:
-    "$task_prompt"
-
-    When the tool execution finishes respond with the following JSON ONLY (no markdown):
+    This is a task execution session. Here's what he user asked to do. When the task execution finishes respond with the following JSON ONLY (no markdown):
 
     {
         "should_notify": true,

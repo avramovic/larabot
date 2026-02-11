@@ -12,6 +12,7 @@ use App\Support\LlmJsonExtractor;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Soukicz\Llm\LLMConversation;
+use Soukicz\Llm\Message\LLMMessage;
 
 class ExecuteScheduledTaskJob implements ShouldQueue
 {
@@ -30,8 +31,8 @@ class ExecuteScheduledTaskJob implements ShouldQueue
      */
     public function handle(LLMChatService $chatService, ChatInterface $chat): void
     {
-        \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->command}");
-        $intro = Message::systemIntroductoryMessage();
+        \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
+        $intro = Message::systemIntroductoryMessage(false);
         $message = Message::systemToolExecutionMessage($this->task);
 
         $chat->sendChatAction();
@@ -39,6 +40,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         $response = $chatService->send(new LLMConversation([
             $intro->toLLMMessage(),
             $message->toLLMMessage(),
+            LLMMessage::createFromSystemString($this->task->prompt),
         ]));
 
         try {
