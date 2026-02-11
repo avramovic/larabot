@@ -71,10 +71,12 @@ class LLMChatService
 
     public function getModel(?string $model = null): ModelInterface
     {
+        $provider = $model ?? config('llm.default_provider');
         $model = $model ?? config('models.default_model');
         $models = config("models.models");
-        $model_class = $models[$model]['class'] ?? null;
-        $model_version = $models[$model]['model'] ?? null;
+        $lookup = ($provider == 'custom') ? $provider : $model;
+        $model_class = $models[$lookup]['class'] ?? null;
+        $model_version = $models[$lookup]['model'] ?? null;
 
         if (empty($model_class)) {
             throw new \InvalidArgumentException("LLM Model class for model '$model' is not defined in configuration");
