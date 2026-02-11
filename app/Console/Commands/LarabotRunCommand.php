@@ -24,7 +24,7 @@ class LarabotRunCommand extends Command
 
         $configs = [
             ['name' => 'queue', 'command' => ['php', 'artisan', 'queue:work']],
-            ['name' => 'telegram', 'command' => ['php', 'artisan', 'telegram:listen', '--daemon']],
+            ['name' => 'telegram', 'command' => ['php', 'artisan', 'larabot:telegram:listen', '--daemon']],
             ['name' => 'cron', 'command' => ['php', 'artisan', 'larabot:cron']],
         ];
 

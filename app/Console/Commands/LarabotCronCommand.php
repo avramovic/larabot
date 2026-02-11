@@ -25,14 +25,11 @@ class LarabotCronCommand extends Command
      */
     public function handle()
     {
-        $this->info('Running Larabot cron jobs... (Ctrl+C to stop)');
+        $this->line('Running Larabot cron jobs... (Ctrl+C to stop)');
 
-        $tick = true;
         while (true) {
             $this->call('larabot:schedule:run', ['--silent' => true]);
             sleep(60);
-            $this->line($tick ? 'tick' : 'tock');
-            $tick = !$tick;
         }
     }
 }

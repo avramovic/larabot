@@ -9,21 +9,21 @@ use Illuminate\Console\Command;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use Telegram\Bot\Objects\Update;
 
-class TelegramListenCommand extends Command
+class LarabotTelegramListenCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'telegram:listen {--timeout=60} {--daemon}';
+    protected $signature = 'larabot:telegram:listen {--timeout=60} {--daemon}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get telegram updates for the bot. This command is intended to be used with a cron job to periodically fetch updates from Telegram and process them.';
+    protected $description = 'Get telegram updates for the bot.';
 
     /**
      * Execute the console command.
@@ -39,7 +39,7 @@ class TelegramListenCommand extends Command
         if (!$daemon) {
             $this->line("Listening for Telegram updates for {$timeout} seconds...");
         } else {
-            $this->line("Listening for Telegram updates in daemon mode...");
+            $this->line("Listening for Telegram updates in daemon mode... (Ctrl+C to stop)");
         }
 
         while ($loop) {
