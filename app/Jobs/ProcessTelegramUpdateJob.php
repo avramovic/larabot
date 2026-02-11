@@ -49,12 +49,13 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             Setting::set('user_first_name', $telegram_user->first_name);
             Setting::set('user_last_name', $telegram_user->last_name);
             $telegram->owner_id = $telegram_user->id;
-            $telegram->sendMessage("👋 Hi {$telegram_user->first_name}! You've been set as the owner of this Telegram bot. You can now start sending messages to the bot and it will respond using the LLM.");
 
             if (empty($telegram->chat_id)) {
                 Setting::set('telegram_chat_id', $telegram_chat->id);
                 $telegram->chat_id = $telegram_chat->id;
             }
+
+            $telegram->sendMessage("👋 Hi {$telegram_user->first_name}! You've been set as the owner of this Telegram bot. You can now start sending messages to the bot and it will respond using the LLM.");
 
             return;
         }
