@@ -32,6 +32,10 @@ return [
             'class' => \Soukicz\Llm\Client\Anthropic\Model\AnthropicClaude45Sonnet::class,
             'model' => \Soukicz\Llm\Client\Anthropic\Model\AnthropicClaude45Sonnet::VERSION_20250929,
         ],
+        'claude-4.6-opus' => [
+            'class' => \App\Support\AnthropicClaude46Opus::class,
+            'model' => \App\Support\AnthropicClaude46Opus::VERSION_4_6,
+        ],
 
         'gpt-o.3'      => [
             'class' => \Soukicz\Llm\Client\OpenAI\Model\GPTo3::class,
