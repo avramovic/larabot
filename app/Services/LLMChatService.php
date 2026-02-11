@@ -11,6 +11,7 @@ use App\Mcp\Tools\MemoryDeleteTool;
 use App\Mcp\Tools\MemorySaveTool;
 use App\Mcp\Tools\MemoryGetTool;
 use App\Mcp\Tools\MemoryUpdateTool;
+use App\Mcp\Tools\NotifyUserTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
@@ -111,9 +112,9 @@ class LLMChatService
         };
     }
 
-    public function getTools(): array
+    public function getTools(bool $tool_execution_session = false): array
     {
-        return [
+        $tools = [
             // Basic tools
             (new McpToolAdapter(new WebSearchTool()))->toLlmTool(),
             (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(),
@@ -131,16 +132,26 @@ class LLMChatService
             (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(),
             (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(),
         ];
+
+        if ($tool_execution_session) {
+            $tool_execution_tools = [
+                (new McpToolAdapter(new NotifyUserTool()))->toLlmTool(),
+            ];
+
+            $tools = array_merge($tool_execution_tools, $tools);
+        }
+
+        return $tools;
     }
 
-    public function send(LLMConversation $conversation): LLMResponse
+    public function send(LLMConversation $conversation, bool $tool_execution_session = false): LLMResponse
     {
         return $this->agent->run(
             client: $this->getClient(),
             request: new LLMRequest(
                 model: $this->getModel(),
                 conversation: $conversation,
-                tools: $this->getTools(),
+                tools: $this->getTools($tool_execution_session),
             )
         );
     }

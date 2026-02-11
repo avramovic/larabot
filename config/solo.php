@@ -14,6 +14,12 @@ if (!class_exists('\SoloTerm\Solo\Manager')) {
     ];
 }
 
+
+$queue_work = Command::from('php artisan queue:work');
+if (env('queue.default') === 'sync') {
+    $queue_work = $queue_work->lazy();
+}
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -46,18 +52,13 @@ return [
     |
     */
     'commands' => [
-        'About' => 'php artisan larabot:about',
-        'Logs' => EnhancedTailCommand::file(storage_path('logs/laravel.log')),
-        'Vite' => 'npm run dev',
-        'Make' => new MakeCommand,
-        // 'HTTP' => 'php artisan serve',
-
-        // Lazy commands do not automatically start when Solo starts.
-        'Dumps' => Command::from('php artisan solo:dumps')->lazy(),
-        'Reverb' => Command::from('php artisan reverb:start --debug')->lazy(),
-        'Pint' => Command::from('./vendor/bin/pint --ansi')->lazy(),
-        'Queue' => Command::from('php artisan queue:work')->lazy(),
-        'Tests' => Command::from('php artisan test --colors=always')->withEnv(['APP_ENV' => 'testing'])->lazy(),
+        'Cockpit' => Command::from('php artisan larabot:cockpit --solo')->interactive(),
+        'Telegram' => Command::from('php artisan telegram:listen --daemon'),
+        'Queue' => $queue_work,
+        'Cron' => Command::from('php artisan larabot:cron')->lazy(),
+        'Config' => Command::from('php artisan larabot:config')->interactive(),
+        'Logs' => EnhancedTailCommand::file(storage_path('logs/laravel.log'))->lazy(),
+        'MCP server' => Command::from('php artisan serve')->lazy(),
     ],
 
     /**

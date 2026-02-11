@@ -33,43 +33,25 @@ class ExecuteScheduledTaskJob implements ShouldQueue
     {
         \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
         $intro = Message::systemIntroductoryMessage(false);
-//        $message = Message::systemToolExecutionMessage($this->task);
+        $message = Message::systemToolExecutionMessage();
 
         $chat->sendChatAction();
 
         $conversation = new LLMConversation([
             $intro->toLLMMessage(),
-//            $message->toLLMMessage(),
+            $message->toLLMMessage(),
             LLMMessage::createFromUserString($this->task->prompt),
         ]);
 
         \Log::debug('Executing LLM conversation for task #'.$this->task->id . ': ', ['convo' => $conversation->jsonSerialize()]);
 
-        $response = $chatService->send($conversation);
+        $response = $chatService->send($conversation, true);
 
-        try {
-            $json = LlmJsonExtractor::extract($response->getLastText());
-
-            if ($json->should_notify ?? true) {
-                Message::create([
-                    'role'     => 'assistant',
-                    'contents' => $json->message ?? $response->getLastText(),
-                    'uuid'     => \Str::uuid(),
-                ]);
-                $chat->sendMessage($json->message ?? "✅ Task #{$this->task->id} executed successfully: " . $response->getLastText());
-                \Log::info("Task #{$this->task->id} executed successfully and a notification was sent to Telegram.", ['json' => $json]);
-            } else {
-                \Log::info("Task #{$this->task->id} executed successfully, but no notification was sent to Telegram as per the LLM response.",
-                    $json);
-            }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse LLM response as JSON: " . $e->getMessage(), [
-                'response_text' => $response->getLastText(),
-            ]);
-
-            $chat->sendMessage($response->getLastText() ?? "✅ Task #{$this->task->id} executed successfully but the response could not be parsed as JSON. Response was empty.");
-        }
+        \Log::debug('LLM scheduled task response:', [
+            'role'     => 'assistant',
+            'contents' => $json->message ?? $response->getLastText(),
+            'uuid'     => \Str::uuid(),
+        ]);
 
         if ($this->task->repeat > 0) {
             $this->task->decrement('repeat');

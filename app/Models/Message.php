@@ -76,21 +76,14 @@ class Message extends Model
         ]);
     }
 
-    public static function systemToolExecutionMessage(Task $task): self
+    public static function systemToolExecutionMessage(): self
     {
-        $task_prompt = $task->prompt;
         $prompt = <<<MARKDOWN
-    This is a task execution session. Here's what he user asked to do. When the task execution finishes respond with the following JSON ONLY (no markdown):
+    # IMPORTANT!
 
-    {
-        "should_notify": true,
-        "message": "LLM response to be sent as a notification when the scheduled task runs."
-    }
-
-    - should_notify indicates whether the LLM response should be sent as a notification when the scheduled task runs. true/false
-        For example if the scheduled task is to check for new unread emails every hour, the should_notify would be true to indicate
-        that this message should be sent as a notification when the scheduled task runs, but only if there actually are new unread emails.
-    - message is the LLM response to be sent as a notification when the scheduled task runs.
+    This is a task execution session. Whatever you respond in this session will be used for logging only.
+    If you agreed with the user or decide otherwise to notify the user about task completion results, use the notify-user-tool to do so!
+    Avoid contacting user during their sleeping schedule if not necessary. You can also schedule a task to notify the user at a later time when they are more likely to be awake if you think it's best for the user experience.
 MARKDOWN;
 
         return self::make([

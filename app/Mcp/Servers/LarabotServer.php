@@ -10,6 +10,7 @@ use App\Mcp\Tools\MemoryDeleteTool;
 use App\Mcp\Tools\MemorySaveTool;
 use App\Mcp\Tools\MemoryGetTool;
 use App\Mcp\Tools\MemoryUpdateTool;
+use App\Mcp\Tools\NotifyUserTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
@@ -62,6 +63,8 @@ class LarabotServer extends Server
         MemorySaveTool::class,
         MemoryDeleteTool::class,
         MemoryGetTool::class,
+        //
+        NotifyUserTool::class,
     ];
 
     /**
