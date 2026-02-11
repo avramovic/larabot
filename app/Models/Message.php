@@ -86,10 +86,10 @@ class Message extends Model
     Avoid contacting user during their sleeping schedule if not necessary. You can also schedule a task to notify the user at a later time when they are more likely to be awake if you think it's best for the user experience.
 MARKDOWN;
 
-        return self::make([
-            'role'     => 'system',
-            'contents' => $prompt,
-        ]);
+        $msg = self::systemIntroductoryMessage(false);
+        $msg->contents .= PHP_EOL . PHP_EOL . $prompt;
+
+        return $msg;
     }
 
     public static function systemFileReceivedMessage(string $file_path, string $file_type): self
@@ -99,14 +99,14 @@ MARKDOWN;
         finfo_close($finfo);
 
         $prompt = <<<MARKDOWN
-    User has uploaded a $file_type file which was saved to $file_path. The file info is as follows:
+    I have uploaded a $file_type file which was saved to $file_path. The file info is as follows:
     "$file_info"
 
-    You can move it to user's Downloads folder or act on it differently if previously agreed with the user.
+    You can move it to Downloads folder or act on it differently if previously agreed.
 MARKDOWN;
 
         return self::make([
-            'role'     => 'system',
+            'role'     => 'user',
             'contents' => $prompt,
         ]);
     }
