@@ -2,6 +2,7 @@
 
 namespace App\Adapters;
 
+use App\Channels\ChatInterface;
 use Illuminate\JsonSchema\JsonSchemaTypeFactory;
 use Illuminate\JsonSchema\Types\ArrayType;
 use Illuminate\JsonSchema\Types\BooleanType;
@@ -17,9 +18,10 @@ use Soukicz\Llm\Tool\CallbackToolDefinition;
 
 class McpToolAdapter
 {
+    protected ChatInterface $chat;
     public function __construct(protected Tool $tool)
     {
-
+        $this->chat = app(ChatInterface::class);
     }
 
     public function toLlmTool(): CallbackToolDefinition
@@ -37,6 +39,7 @@ class McpToolAdapter
                 /** @var Response|ResponseFactory $response */
                 \Log::debug("[TOOL CALL] {$this->tool->name()} tool called with params: ", $input);
                 try {
+                    $this->chat->sendChatAction();
                     $response = $this->tool->handle(new \Laravel\Mcp\Request($input));
 
                     if (method_exists($response, 'getStructuredContent') && $structured = $response->getStructuredContent()) {

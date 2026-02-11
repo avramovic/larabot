@@ -64,8 +64,6 @@ class HttpRequestTool extends BaseMcpTool
             $options['query'] = $query;
         }
 
-        $this->chat->sendChatAction();
-
         try {
             $response = Http::withOptions([
                 'debug'           => false,

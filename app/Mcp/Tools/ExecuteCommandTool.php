@@ -34,8 +34,6 @@ class ExecuteCommandTool extends BaseMcpTool
         $command = $request->get('command');
         $cwd = $request->get('cwd') ?: base_path();
 
-        $this->chat->sendChatAction();
-
         try {
             // Use fromShellCommandline to handle quoted arguments correctly
             $process = \Symfony\Component\Process\Process::fromShellCommandline($command, $cwd);

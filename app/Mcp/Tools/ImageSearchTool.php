@@ -39,8 +39,6 @@ class ImageSearchTool extends BaseMcpTool
             return Response::error('Brave Search API key is not configured. Get it on https://brave.com/search/api/ and add it to config/services.php or define BRAVE_SEARCH_API_KEY environment variable.');
         }
 
-        $this->chat->sendChatAction();
-
         try {
             $response = Http::withOptions([
                 'debug' => false,
