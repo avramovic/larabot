@@ -25,8 +25,6 @@ class MemorySaveTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
-        \Log::debug(sprintf('[TOOL CALL] %s tool called with params: ', get_class($this)), $request->all());
-
         $request->validate([
             'title'    => ['required', 'string'],
             'contents' => ['required', 'string'],

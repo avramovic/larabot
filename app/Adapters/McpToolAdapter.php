@@ -35,12 +35,16 @@ class McpToolAdapter
             inputSchema: $inputSchema,
             handler: function (array $input): LLMMessageContents {
                 /** @var Response|ResponseFactory $response */
+                \Log::debug("[TOOL CALL] {$this->tool->name()} tool called with params: ", $input);
                 try {
                     $response = $this->tool->handle(new \Laravel\Mcp\Request($input));
 
                     if ($structured = $response->getStructuredContent()) {
+                        \Log::debug("[TOOL RESPONSE] {$this->tool->name()} tool returned structured content: ", $structured);
                         return LLMMessageContents::fromArrayData($structured);
                     }
+
+                    \Log::debug("[TOOL RESPONSE] {$this->tool->name()} tool returned unstructured content: " .  $response->content());
 
                     return LLMMessageContents::fromString($response->content());
                 } catch (\Exception $exception) {
