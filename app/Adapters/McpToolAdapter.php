@@ -48,7 +48,7 @@ class McpToolAdapter
 
                     return LLMMessageContents::fromString($response->content());
                 } catch (\Exception $exception) {
-                    \Log::debug("[TOOL CALL] {$this->tool->name()} tool execution failed: " . $exception->getMessage());
+                    \Log::debug("[TOOL CALL] {$this->tool->name()} tool execution failed: " . $exception->getMessage(), ['trace' => $exception->getTrace()]);
                     return LLMMessageContents::fromErrorString('Tool execution failed: ' . $exception->getMessage());
                 }
             },
