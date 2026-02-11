@@ -96,8 +96,8 @@ return [
             'class' => \Soukicz\Llm\Client\Gemini\Model\Gemini25ProPreview::class,
         ],
 
-        // custom local model example, you can for example define ollama models here
-        env('LLM_MODEL', 'kimi-k2.5:cloud') => [
+        // custom (local) model example, you can for example define ollama models here
+        'custom' => [
             'class' => \Soukicz\Llm\Client\Universal\LocalModel::class,
             'model' => env('LLM_MODEL', 'kimi-k2.5:cloud'),
         ],
