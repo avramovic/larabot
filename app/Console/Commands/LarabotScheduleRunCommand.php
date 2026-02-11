@@ -13,7 +13,7 @@ class LarabotScheduleRunCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'larabot:schedule:run';
+    protected $signature = 'larabot:schedule:run {id?} {--force}';
 
     /**
      * The console command description.
@@ -28,6 +28,21 @@ class LarabotScheduleRunCommand extends Command
     public function handle()
     {
         $this->info('Running scheduled LLM tasks...');
+
+        if ($id = $this->argument('id')) {
+            $task = Task::find($id);
+            if (!$task) {
+                $this->error("Task with ID {$id} not found.");
+                return;
+            }
+            if (!$task->isDue() && !$this->option('force')) {
+                $this->error("Task #{$id} is not due for execution yet. Use --force to execute it anyway.");
+                return;
+            }
+            $this->line('Dispatching task #'.$task->id.' for execution.');
+            dispatch(new ExecuteScheduledTaskJob($task));
+            return;
+        }
 
         Task::where('repeat', 0)->delete();
 

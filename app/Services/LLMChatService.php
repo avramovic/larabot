@@ -43,11 +43,6 @@ class LLMChatService
         $this->agent = new LLMAgentClient();
     }
 
-    public function getAgent(): LLMAgentClient
-    {
-        return $this->agent;
-    }
-
     public static function getConversation(int $sliding_window = -1): LLMConversation
     {
         if ($sliding_window === -1 || empty($sliding_window)) {

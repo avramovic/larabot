@@ -33,15 +33,19 @@ class ExecuteScheduledTaskJob implements ShouldQueue
     {
         \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
         $intro = Message::systemIntroductoryMessage(false);
-        $message = Message::systemToolExecutionMessage($this->task);
+//        $message = Message::systemToolExecutionMessage($this->task);
 
         $chat->sendChatAction();
 
-        $response = $chatService->send(new LLMConversation([
+        $conversation = new LLMConversation([
             $intro->toLLMMessage(),
-            $message->toLLMMessage(),
-            LLMMessage::createFromSystemString($this->task->prompt),
-        ]));
+//            $message->toLLMMessage(),
+            LLMMessage::createFromUserString($this->task->prompt),
+        ]);
+
+        \Log::debug('Executing LLM conversation for task #'.$this->task->id . ': ', ['convo' => $conversation->jsonSerialize()]);
+
+        $response = $chatService->send($conversation);
 
         try {
             $json = LlmJsonExtractor::extract($response->getLastText());
@@ -64,7 +68,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
                 'response_text' => $response->getLastText(),
             ]);
 
-            $chat->sendMessage("✅ Task #{$this->task->id} executed successfully but the response could not be parsed as JSON. Response was: " . $response->getLastText());
+            $chat->sendMessage($response->getLastText() ?? "✅ Task #{$this->task->id} executed successfully but the response could not be parsed as JSON. Response was empty.");
         }
 
         if ($this->task->repeat > 0) {
