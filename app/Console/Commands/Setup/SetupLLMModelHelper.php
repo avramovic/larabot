@@ -16,6 +16,7 @@ trait SetupLLMModelHelper
             array_merge($this->filterModels($models, $provider), ['Custom', 'Skip']), $current);
 
         if ($model === 'List all...') {
+            $this->clearScreen('LLM Model Setup - All Models');
             $model = $this->choice("Choose your LLM model", array_merge($models, ['Custom', 'Skip']), $current);
         }
 
@@ -30,10 +31,11 @@ trait SetupLLMModelHelper
         }
 
         if ($model === 'Custom') {
+            $this->clearScreen('LLM Model Setup - Custom Model');
             $model = $this->ask('Enter the EXACT name of your LLM model (for example: qwen2.5-coder or kimi-k2.5:cloud)', $current);
         }
 
-        if ($this->writeToEnv('LLM_MODEL', $model)) {
+        if ($model != $current && $this->writeToEnv('LLM_MODEL', $model)) {
             $this->line('LLM model saved successfully.');
         }
 

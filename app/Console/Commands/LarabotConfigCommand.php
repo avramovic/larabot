@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 class LarabotConfigCommand extends Command
 {
     use SetupTelegramHelper, SetupLLMProviderHelper, SetupLLMModelHelper;
+
     /**
      * The name and signature of the console command.
      *
@@ -43,7 +44,7 @@ class LarabotConfigCommand extends Command
             $this->runSetupWizard();
         }
 
-        $this->mainMenu(0);
+        $this->mainMenu();
     }
 
     protected function clearScreen(?string $title = null): void
@@ -78,53 +79,45 @@ class LarabotConfigCommand extends Command
         $this->clearScreen();
 
         $options = [
-            'Telegram Bot' => Setting::get('bot_name', 'Larabot'),
-            'LLM Provider' => config('llm.default_provider', 'Not set'),
-            'LLM Model' => config('models.default_model', 'Not set'),
-            'Other Settings' => '...',
-            'Exit' => 'Exit',
+            'Telegram Bot (' . Setting::get('bot_name', 'Larabot') . ')',
+            'LLM Provider (' . config('llm.default_provider', 'Not set') . ')',
+            'LLM Model (' . config('models.default_model', 'Not set') . ')',
+            'Other Settings',
+            'Exit',
         ];
 
         $selected = $this->choice('What do you want to configure?', $options, 'Exit');
 
-        switch ($selected) {
-            case 'Telegram Bot':
-                $this->setupTelegram();
-                break;
-            case 'LLM Provider':
-                $this->setupLLMProvider();
-                break;
-            case 'LLM Model':
-                $this->setupLLMModel();
-                break;
-            case 'Other Settings':
-                $this->otherSettings();
-                break;
-            default:
-                $this->line('Exiting configuration. You can run this command again anytime to change settings.');
-        }
+        match (true) {
+            str_starts_with($selected, 'Telegram Bot') => $this->setupTelegram(),
+            str_starts_with($selected, 'LLM Provider') => $this->setupLLMProvider(),
+            str_starts_with($selected, 'LLM Model') => $this->setupLLMModel(),
+            str_starts_with($selected, 'Other Settings') => $this->otherSettings(),
+            default => $this->line('Exiting configuration. You can run this command again anytime to change settings.'),
+        };
     }
 
     public function writeToEnv(string $key, string $value): bool|int
     {
         $envPath = base_path('.env');
         if (!file_exists($envPath)) {
-            return file_put_contents($envPath, "$key=".$this->quoteString($value).PHP_EOL);
+            return file_put_contents($envPath, "$key=" . $this->quoteString($value) . PHP_EOL);
         }
 
         $env = file($envPath, FILE_IGNORE_NEW_LINES);
         $keyFound = false;
         foreach ($env as &$line) {
             if (str_starts_with($line, "$key=")) {
-                $line = "$key=".$this->quoteString($value);
+                $line = "$key=" . $this->quoteString($value);
                 $keyFound = true;
                 break;
             }
         }
         unset($line);
         if (!$keyFound) {
-            $env[] = "$key=".$this->quoteString($value);
+            $env[] = "$key=" . $this->quoteString($value);
         }
+
         return file_put_contents($envPath, implode(PHP_EOL, $env) . PHP_EOL);
     }
 
@@ -138,7 +131,7 @@ class LarabotConfigCommand extends Command
             return $value ? 'true' : 'false';
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 
     public function sleep(?int $seconds = null): int
