@@ -138,11 +138,9 @@ class LLMChatService
         ];
     }
 
-    public function send(LLMConversation $conversation, $async = false): LLMResponse|PromiseInterface
+    public function send(LLMConversation $conversation): LLMResponse
     {
-        $method = $async ? 'runAsync' : 'run';
-
-        return $this->agent->$method(
+        return $this->agent->run(
             client: $this->getClient(),
             request: new LLMRequest(
                 model: $this->getModel(),

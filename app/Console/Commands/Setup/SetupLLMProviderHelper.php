@@ -4,18 +4,12 @@ namespace App\Console\Commands\Setup;
 
 trait SetupLLMProviderHelper
 {
-    public function setupLLMProvider(): void
+    public function setupLLMProvider(bool $returnToMenu = true): void
     {
         $this->clearScreen('LLM Provider Setup');
 
         $current = config('llm.default_provider');
-
-        $preselected = match ($current) {
-            'openai' => 'OpenAI',
-            'anthropic' => 'Anthropic',
-            'gemini' => 'Google Gemini',
-            default => 'OpenAI-compatible (ollama)',
-        };
+        $preselected = $this->beautifyProviderName($current);
 
         $provider = $this->choice('Select your LLM provider',
             ['OpenAI', 'Anthropic', 'Google Gemini', 'OpenAI-compatible (ollama)', 'Skip'], $preselected);
@@ -35,8 +29,22 @@ trait SetupLLMProviderHelper
                 break;
             default:
                 $this->line('LLM provider setup skipped.');
-                $this->mainMenu();
         }
+
+        if ($returnToMenu) {
+            $this->sleep();
+            $this->mainMenu();
+        }
+    }
+
+    private function beautifyProviderName(string $name): string
+    {
+        return match ($name) {
+            'openai' => 'OpenAI',
+            'anthropic' => 'Anthropic',
+            'gemini' => 'Google Gemini',
+            default => 'OpenAI-compatible (ollama)',
+        };
     }
 
 
@@ -44,63 +52,77 @@ trait SetupLLMProviderHelper
     {
         $this->clearScreen('LLM Provider Setup - OpenAI');
 
-        $api_key = $this->ask('Your OpenAI API Key', config('llm.providers.openai.api_key'));
+        $current_api_key = config('llm.providers.openai.api_key');
+        $api_key = $this->ask('Your OpenAI API Key', $current_api_key);
 
-        if ($this->writeToEnv('OPENAI_API_KEY', $api_key)) {
+        if ($api_key != $current_api_key && $this->writeToEnv('OPENAI_API_KEY', $api_key)) {
             $this->line('OpenAI API key saved successfully.');
         }
 
-        $org_key = $this->ask('Your OpenAI Organization Key', config('llm.providers.openai.org_key'));
+        $current_org_key = config('llm.providers.openai.org_key');
+        $org_key = $this->ask('Your OpenAI Organization Key', $current_org_key);
 
-        if ($this->writeToEnv('OPENAI_ORG_KEY', $org_key)) {
+        if ($org_key != $current_org_key && $this->writeToEnv('OPENAI_ORG_KEY', $org_key)) {
             $this->line('OpenAI Organization key saved successfully.');
         }
 
-        $this->setupLLMProvider();
+        if ($api_key && $org_key && $this->writetoEnv('LLM_PROVIDER', 'openai')) {
+            $this->line('OpenAI set as the LLM provider.');
+        }
     }
 
     protected function setupAnthropic()
     {
         $this->clearScreen('LLM Provider Setup - Anthropic');
 
-        $api_key = $this->ask('Your Anthropic API Key', config('llm.providers.anthropic.api_key'));
+        $current_api_key = config('llm.providers.anthropic.api_key');
+        $api_key = $this->ask('Your Anthropic API Key', $current_api_key);
 
-        if ($this->writeToEnv('ANTHROPIC_API_KEY', $api_key)) {
+        if ($api_key != $current_api_key && $this->writeToEnv('ANTHROPIC_API_KEY', $api_key)) {
             $this->line('Anthropic API key saved successfully.');
         }
 
-        $this->setupLLMProvider();
+        if ($api_key && $this->writetoEnv('LLM_PROVIDER', 'anthropic')) {
+            $this->line('Anthropic set as the LLM provider.');
+        }
     }
 
     protected function setupGoogleGemini()
     {
         $this->clearScreen('LLM Provider Setup - Google Gemini');
 
-        $api_key = $this->ask('Your Google Gemini API Key', config('llm.providers.gemini.api_key'));
+        $current_api_key = config('llm.providers.gemini.api_key');
+        $api_key = $this->ask('Your Google Gemini API Key', $current_api_key);
 
-        if ($this->writeToEnv('GEMINI_API_KEY', $api_key)) {
+        if ($api_key != $current_api_key && $this->writeToEnv('GEMINI_API_KEY', $api_key)) {
             $this->line('Google Gemini API key saved successfully.');
         }
 
-        $this->setupLLMProvider();
+        if ($this->writetoEnv('LLM_PROVIDER', 'gemini')) {
+            $this->line('Google Gemini set as the LLM provider.');
+        }
     }
 
     protected function setupCustomLLMProvider(): void
     {
-        $this->clearScreen('LLM Provider Setup - Custom');
+        $this->clearScreen('LLM Provider Setup - Custom (Open-AI compatible)');
 
-        $api_key = $this->ask('Your OpenAI-compatible API Key', config('llm.providers.custom.api_key'));
+        $current_api_key = config('llm.providers.custom.api_key');
+        $api_key = $this->ask('Your OpenAI-compatible API Key', $current_api_key);
 
-        if ($this->writeToEnv('CUSTOM_API_KEY', $api_key)) {
-            $this->line('Google OpenAI-compatible key saved successfully.');
+        if ($current_api_key != $api_key && $this->writeToEnv('CUSTOM_API_KEY', $api_key)) {
+            $this->line('Custom (OpenAI-compatible) API key saved successfully.');
         }
 
-        $base_url = $this->ask('Your OpenAI-compatible API Base URL', config('llm.providers.custom.base_url'));
+        $current_base_url = config('llm.providers.custom.base_url');
+        $base_url = $this->ask('Your OpenAI-compatible API Base URL', $current_base_url);
 
-        if ($this->writeToEnv('CUSTOM_BASE_URL', $base_url)) {
-            $this->line('Google OpenAI-compatible API Base URL saved successfully.');
+        if ($current_base_url != $base_url && $this->writeToEnv('CUSTOM_BASE_URL', $base_url)) {
+            $this->line('Custom (OpenAI-compatible) API Base URL saved successfully.');
         }
 
-        $this->setupLLMProvider();
+        if ($api_key && $current_base_url && $this->writetoEnv('LLM_PROVIDER', 'custom')) {
+            $this->line('Custom (OpenAI-compatible) set as the LLM provider.');
+        }
     }
 }

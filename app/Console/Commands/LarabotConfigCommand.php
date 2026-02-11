@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Setup\SetupLLMModelHelper;
 use App\Console\Commands\Setup\SetupLLMProviderHelper;
 use App\Console\Commands\Setup\SetupTelegramHelper;
+use App\Models\Setting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -45,25 +46,24 @@ class LarabotConfigCommand extends Command
         $this->mainMenu(0);
     }
 
-    protected function clearScreen(string $title = 'Larabot Configuration', int $sleep = null): void
+    protected function clearScreen(?string $title = null): void
     {
-        sleep($sleep ?? $this->sleep);
         echo "\033[2J\033[H";
-        $this->billBoard($title);
+        $this->billBoard('Larabot Configuration' . ($title ? " - $title" : ''));
     }
 
     protected function runSetupWizard()
     {
         $this->info('Let\'s set up your Larabot configuration.');
 
-        $this->setupTelegram();
-        $this->setupLLMProvider();
-        $this->setupLLMModel();
+        $this->setupTelegram(false);
+        $this->setupLLMProvider(false);
+        $this->setupLLMModel(false);
 //        $this->otherSettings();
         $this->mainMenu();
     }
 
-    protected function billBoard(string $message = 'Larabot Configuration!')
+    protected function billBoard(?string $message = 'Larabot Configuration!')
     {
         $this->info(str_repeat('=', strlen($message) + 6));
         $this->info('|' . str_repeat(' ', strlen($message) + 4) . '|');
@@ -73,12 +73,21 @@ class LarabotConfigCommand extends Command
         $this->line('');
     }
 
-    protected function mainMenu($sleep = null): void
+    protected function mainMenu(): void
     {
-        $this->clearScreen('Larabot Configuration', $sleep);
-        $what = $this->choice('What do you want to configure?', ['Telegram Bot', 'LLM Provider', 'LLM Model', 'Other Settings', 'Nothing (Exit)'], 'Nothing (Exit)');
+        $this->clearScreen();
 
-        switch ($what) {
+        $options = [
+            'Telegram Bot' => Setting::get('bot_name', 'Larabot'),
+            'LLM Provider' => config('llm.default_provider', 'Not set'),
+            'LLM Model' => config('models.default_model', 'Not set'),
+            'Other Settings' => '...',
+            'Exit' => 'Exit',
+        ];
+
+        $selected = $this->choice('What do you want to configure?', $options, 'Exit');
+
+        switch ($selected) {
             case 'Telegram Bot':
                 $this->setupTelegram();
                 break;
@@ -124,7 +133,17 @@ class LarabotConfigCommand extends Command
         if (is_string($value) && !is_numeric($value)) {
             return '"' . addslashes($value) . '"';
         }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
         return (string)$value;
+    }
+
+    public function sleep(?int $seconds = null): int
+    {
+        return sleep($seconds ?? $this->sleep);
     }
 
 

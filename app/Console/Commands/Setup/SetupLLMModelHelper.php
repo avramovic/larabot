@@ -4,7 +4,7 @@ namespace App\Console\Commands\Setup;
 
 trait SetupLLMModelHelper
 {
-    public function setupLLMModel()
+    public function setupLLMModel(bool $returnToMenu = true): void
     {
         $this->clearScreen('LLM Model Setup');
 
@@ -13,17 +13,34 @@ trait SetupLLMModelHelper
 
         $models = array_keys(config('models.models'));
         $model = $this->choice("Choose your LLM model",
-            array_merge($this->filterModels($models, $provider), ['All']), $current);
+            array_merge($this->filterModels($models, $provider), ['Custom', 'Skip']), $current);
 
-        if ($model === 'All') {
-            $model = $this->choice("Choose your LLM model", $models, $current);
+        if ($model === 'List all...') {
+            $model = $this->choice("Choose your LLM model", array_merge($models, ['Custom', 'Skip']), $current);
+        }
+
+        if ($model === 'Skip') {
+            $this->line('Skipped setting up LLM model.');
+            if ($returnToMenu) {
+                $this->sleep();
+                $this->mainMenu();
+            } else {
+                return;
+            }
+        }
+
+        if ($model === 'Custom') {
+            $model = $this->ask('Enter the EXACT name of your LLM model (for example: qwen2.5-coder or kimi-k2.5:cloud)', $current);
         }
 
         if ($this->writeToEnv('LLM_MODEL', $model)) {
             $this->line('LLM model saved successfully.');
         }
 
-        $this->mainMenu();
+        if ($returnToMenu) {
+            $this->sleep();
+            $this->mainMenu();
+        }
     }
 
     public function filterModels(array $models, string $filter = 'all'): array
@@ -37,8 +54,9 @@ trait SetupLLMModelHelper
 
         if (!is_null($tag)) {
             $models = array_filter($models, fn($model) => str_starts_with(strtolower($model), $tag));
+            $models[] = 'List all...';
         }
 
-        return array_merge($models, ['Custom']);
+        return $models;
     }
 }

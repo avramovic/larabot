@@ -88,6 +88,24 @@ class Message extends Model
     - message is the LLM response to be sent as a notification when the scheduled task runs.
 MARKDOWN;
 
+        return self::make([
+            'role'     => 'system',
+            'contents' => $prompt,
+        ]);
+    }
+
+    public static function systemFileReceivedMessage(string $file_path, string $file_type): self
+    {
+        $finfo = finfo_open(FILEINFO_NONE);
+        $file_info = finfo_file($finfo, $file_path);
+        finfo_close($finfo);
+
+        $prompt = <<<MARKDOWN
+    User has uploaded a $file_type file which was saved to $file_path. The file info is as follows:
+    "$file_info"
+
+    You can move it to user's Downloads folder or act on it differently if previously agreed with the user.
+MARKDOWN;
 
         return self::make([
             'role'     => 'system',

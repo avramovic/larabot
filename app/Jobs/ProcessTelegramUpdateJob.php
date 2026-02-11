@@ -80,35 +80,47 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         $conversation = $chatService->getConversation(config('llm.sliding_window', -1));
 
+        $file = null;
+        $file_type = null;
+
         if (isset($telegram_message->photo)) {
-            $photo = $telegram_message->photo->sortBy('file_size')->last();
-            $downloaded_file = $telegram->downloadFile($photo['file_id']);
-            \Log::warning("Received photo from telegram: ".$downloaded_file, $telegram->getUpdate()->toArray());
-            $conversation = $conversation->withMessage(LLMMessage::createFromSystemString('Received a photo: '.$downloaded_file));
+            $file = $telegram_message->photo->sortBy('file_size')->last();
+            $file_type = 'photo';
         }
 
         if (isset($telegram_message->document)) {
-
+            $file = $telegram_message->document;
+            $file_type = 'document';
         }
 
         if (isset($telegram_message->audio)) {
-
+            $file = $telegram_message->audio;
+            $file_type = 'audio';
         }
 
         if (isset($telegram_message->video)) {
+            $file = $telegram_message->video;
+            $file_type = 'video';
 
         }
 
         if (isset($telegram_message->voice)) {
-
+            $file = $telegram_message->voice;
+            $file_type = 'voice';
         }
 
+        if (!is_null($file)) {
+            $downloaded_file = $telegram->downloadFile($file['file_id']);
+            \Log::warning("Received photo from telegram: ".$downloaded_file, $telegram->getUpdate()->toArray());
+            $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type);
+            $file_message->save();
+            $conversation = $conversation->withMessage($file_message->toLLMMessage());
+        }
 
         if (isset($telegram_message->text)) {
             $message = Message::fromTelegramMessage($telegram_message);
             $conversation = $conversation->withMessage($message->toLLMMessage());
         }
-
 
         try {
             $response = $chatService->send($conversation);
@@ -119,20 +131,19 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             return;
         }
 
-
-
         if (isset($message)) {
             $message->save();
         }
 
-
-
         Setting::set('telegram_offset', $this->update['update_id']);
 
-        $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
-        $response_message->save();
-
-        $telegram->sendMessage($response->getLastText());
+        if (!empty($response->getLastText())) {
+            $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
+            $response_message->save();
+            $telegram->sendMessage($response->getLastText());
+        } else {
+            $telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: '.$response->getStopReason()->value.'; response:'.$response->getLastText());
+        }
     }
 
 }

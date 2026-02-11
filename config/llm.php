@@ -19,7 +19,7 @@ return [
         ],
         // Custom OpenAI compatible provider example, you can for example define ollama models here
         'custom'    => [
-            'api_key'  => env('CUSTOM_API_KEY', 'skip this if using ollama'),
+            'api_key'  => env('CUSTOM_API_KEY', 'skip this if using ollama locally without authentication'),
             'base_url' => env('CUSTOM_BASE_URL', 'http://localhost:11434/v1'),
         ],
     ],

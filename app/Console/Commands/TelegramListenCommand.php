@@ -54,7 +54,7 @@ class TelegramListenCommand extends Command
                     $offset = $update['update_id'];
                 }
             } catch (TelegramSDKException $e) {
-                $this->error($e->getMessage());
+                $this->error('Error fetching updates: '.$e->getMessage());
                 continue;
             }
 

@@ -97,9 +97,9 @@ return [
         ],
 
         // custom local model example, you can for example define ollama models here
-        'kimi-k2.5:cloud'                => [
+        env('LLM_MODEL', 'kimi-k2.5:cloud') => [
             'class' => \Soukicz\Llm\Client\Universal\LocalModel::class,
-            'model' => 'kimi-k2.5:cloud',
+            'model' => env('LLM_MODEL', 'kimi-k2.5:cloud'),
         ],
     ],
 ];
