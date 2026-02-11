@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Adapters\McpToolAdapter;
-use App\Mcp\Tools\WebSearchTool;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 
@@ -25,9 +23,9 @@ class LarabotRunCommand extends Command
         $this->info('Starting Larabot supervisor... (Ctrl+C to stop)');
 
         $configs = [
-            ['name' => 'web-server', 'command' => ['php', 'artisan', 'serve']],
-            ['name' => 'queue-worker', 'command' => ['php', 'artisan', 'queue:work']],
-            ['name' => 'telegram-listener', 'command' => ['php', 'artisan', 'telegram:listen', '--daemon']],
+            ['name' => 'web', 'command' => ['php', 'artisan', 'serve']],
+            ['name' => 'queue', 'command' => ['php', 'artisan', 'queue:work']],
+            ['name' => 'telegram', 'command' => ['php', 'artisan', 'telegram:listen', '--daemon']],
         ];
 
         foreach ($configs as $config) {
