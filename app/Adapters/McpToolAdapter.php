@@ -39,7 +39,7 @@ class McpToolAdapter
                 try {
                     $response = $this->tool->handle(new \Laravel\Mcp\Request($input));
 
-                    if ($structured = $response->getStructuredContent()) {
+                    if (method_exists($response, 'getStructuredContent') && $structured = $response->getStructuredContent()) {
                         \Log::debug("[TOOL RESPONSE] {$this->tool->name()} tool returned structured content: ", $structured);
                         return LLMMessageContents::fromArrayData($structured);
                     }
