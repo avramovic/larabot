@@ -5,8 +5,15 @@ namespace App\Models;
 use App\Enums\SettingType;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 
+/**
+ * @property int $id
+ * @property string $key
+ * @property string $value
+ * @property string $type
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 class Setting extends Model
 {
     protected $guarded = [];

@@ -3,14 +3,13 @@
 namespace App\Jobs;
 
 use App\Channels\ChatInterface;
-use App\Channels\Telegram\Telegram;
+use App\Models\Memory;
 use App\Models\Message;
-use App\Models\Setting;
 use App\Models\Task;
 use App\Services\LLMChatService;
-use App\Support\LlmJsonExtractor;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Str;
 use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\Message\LLMMessage;
 
@@ -45,10 +44,20 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 
         $response = $chatService->send($conversation, true);
 
+        match ($this->task->destination) {
+            'user' => $chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
+            'memory' => Memory::create([
+                'title'    => "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString(),
+                'contents' => $response->getLastText() ?? 'LLM responded with empty content.',
+                'preload'  => false,
+            ]),
+//            'file' => file_put_contents(base_path(Str::slug("Task #{$thixs->task->id} executed at " . now()->toDateTimeLocalString())),
+//                $response->getLastText() ?? 'LLM responded with empty content.'),
+            default => null,
+        };
+
         \Log::debug('LLM scheduled task response:', [
-            'role'     => 'assistant',
-            'contents' => $json->message ?? $response->getLastText(),
-            'uuid'     => \Str::uuid(),
+            'text' => $response->getLastText(),
         ]);
 
         if ($this->task->repeat > 0) {

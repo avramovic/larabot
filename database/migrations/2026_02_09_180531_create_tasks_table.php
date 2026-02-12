@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('prompt');
             $table->integer('repeat')->default(-1);
             $table->boolean('enabled')->default(true);
+            $table->string('destination')->default('user');
             $table->timestamps();
         });
     }

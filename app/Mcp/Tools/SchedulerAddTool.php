@@ -24,15 +24,17 @@ class SchedulerAddTool extends Tool
     public function handle(Request $request): Response|ResponseFactory
     {
         $request->validate([
-            'schedule' => ['required', 'string'],
-            'prompt' => ['required', 'string'],
-            'repeat' => ['integer'],
+            'schedule'    => ['required', 'string'],
+            'prompt'      => ['required', 'string'],
+            'repeat'      => ['integer'],
+            'destination' => ['string'],
         ]);
 
         $task = Task::create([
-            'schedule' => $request->get('schedule'),
-            'prompt'   => $request->get('prompt'),
-            'repeat'   => $request->get('repeat', -1),
+            'schedule'    => $request->get('schedule'),
+            'prompt'      => $request->get('prompt'),
+            'repeat'      => $request->get('repeat', -1),
+            'destination' => $request->get('destination', 'user'),
         ]);
 
         return Response::structured($task->toArray());
@@ -46,9 +48,10 @@ class SchedulerAddTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'schedule' => $schema->string()->description('REQUIRED. The cron expression defining the schedule, like: 0 8 * * *')->required(),
-            'prompt'   => $schema->string()->description('REQUIRED. The prompt to execute on the LLM model.')->required(),
-            'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.')->default(-1),
+            'schedule'    => $schema->string()->description('REQUIRED. The cron expression defining the schedule, like: 0 8 * * *')->required(),
+            'prompt'      => $schema->string()->description('REQUIRED. The prompt to execute on the LLM model.')->required(),
+            'repeat'      => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.')->default(-1),
+            'destination' => $schema->string()->description('Where to send task execution result: user/memory/auto')->default('user'),
         ];
     }
 }

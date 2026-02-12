@@ -10,6 +10,14 @@ use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\Message\LLMMessage;
 use Telegram\Bot\Objects\Message as TelegramMessage;
 
+/**
+ * @property int $id
+ * @property string $role
+ * @property string $contents
+ * @property string $uuid
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 class Message extends Model
 {
     protected $guarded = [];

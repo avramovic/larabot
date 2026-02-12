@@ -24,11 +24,12 @@ class SchedulerUpdateTool extends BaseMcpTool
     public function handle(Request $request): Response|ResponseFactory
     {
         $request->validate([
-            'id'       => ['required', 'integer', 'exists:tasks,id'],
-            'schedule' => ['string'],
-            'prompt'   => ['string'],
-            'repeat'   => ['integer'],
-            'enabled'  => ['string'],
+            'id'          => ['required', 'integer', 'exists:tasks,id'],
+            'schedule'    => ['string'],
+            'prompt'      => ['string'],
+            'repeat'      => ['integer'],
+            'destination' => ['string'],
+            'enabled'     => ['string'],
         ]);
 
         $task = Task::find($request->get('id'));
@@ -37,10 +38,11 @@ class SchedulerUpdateTool extends BaseMcpTool
         }
 
         $task->update([
-            'schedule' => $request->get('schedule', $task->schedule),
-            'prompt'   => $request->get('prompt', $task->prompt),
-            'repeat'   => $request->get('repeat', $task->repeat),
-            'enabled'  => $this->checkTruthiness($request->get('enabled', $task->enabled)),
+            'schedule'    => $request->get('schedule', $task->schedule),
+            'prompt'      => $request->get('prompt', $task->prompt),
+            'repeat'      => $request->get('repeat', $task->repeat),
+            'destination' => $request->get('destination', $task->destination),
+            'enabled'     => $this->checkTruthiness($request->get('enabled', $task->enabled)),
         ]);
 
         return Response::structured($task->toArray());
@@ -54,11 +56,12 @@ class SchedulerUpdateTool extends BaseMcpTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id'       => $schema->integer()->description('REQUIRED. ID of the task')->required(),
-            'schedule' => $schema->string()->description('The cron expression defining the schedule.'),
-            'prompt'   => $schema->string()->description('The prompt to execute on the LLM model.'),
-            'repeat'   => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
-            'enabled'  => $schema->string()->description('Whether the task is enabled or not. true/false'),
+            'id'          => $schema->integer()->description('REQUIRED. ID of the task')->required(),
+            'schedule'    => $schema->string()->description('The cron expression defining the schedule.'),
+            'prompt'      => $schema->string()->description('The prompt to execute on the LLM model.'),
+            'repeat'      => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
+            'destination' => $schema->string()->description('Where to send task execution result: user/memory/auto')->default('user'),
+            'enabled'     => $schema->string()->description('Whether the task is enabled or not. true/false'),
         ];
     }
 }
