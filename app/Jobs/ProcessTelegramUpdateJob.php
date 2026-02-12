@@ -21,6 +21,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
      */
     public function __construct(protected Update $update)
     {
+        $this->telegram = new Telegram($this->update);
     }
 
     /**
@@ -28,9 +29,8 @@ class ProcessTelegramUpdateJob implements ShouldQueue
      */
     public function handle(LLMChatService $chatService): void
     {
-        $telegram = new Telegram($this->update);
 
-        $bot_info = $telegram->getBotInfo();
+        $bot_info = $this->telegram->getBotInfo();
         Setting::updateOrCreate(
             ['key' => 'bot_name'],
             ['value' => $bot_info->first_name],
@@ -39,30 +39,30 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         \Log::info('Processing Telegram update: ', $this->update->toArray());
 
         //safety check to ensure we only process messages from the configured chat and owner
-        $telegram_user = $telegram->getUpdate('from');
-        $telegram_chat = $telegram->getUpdate('chat');
+        $telegram_user = $this->telegram->getUpdate('from');
+        $telegram_chat = $this->telegram->getUpdate('chat');
 
-        if (empty($telegram->owner_id)) {
+        if (empty($this->telegram->owner_id)) {
             Setting::set('telegram_owner_id', $telegram_user->id);
             Setting::set('user_first_name', $telegram_user->first_name);
             Setting::set('user_last_name', $telegram_user->last_name);
-            $telegram->owner_id = $telegram_user->id;
+            $this->telegram->owner_id = $telegram_user->id;
 
-            if (empty($telegram->chat_id)) {
+            if (empty($this->telegram->chat_id)) {
                 Setting::set('telegram_chat_id', $telegram_chat->id);
-                $telegram->chat_id = $telegram_chat->id;
+                $this->telegram->chat_id = $telegram_chat->id;
             }
 
-            $telegram->sendMessage("👋 Hi {$telegram_user->first_name}! You've been set as the owner of this Telegram bot. You can now start sending messages to the bot and it will respond using the LLM.");
+            $this->telegram->sendMessage("👋 Hi {$telegram_user->first_name}! You've been set as the owner of this Telegram bot. You can now start sending messages to the bot and it will respond using the LLM.");
 
             return;
         }
 
 
-        if ($telegram_user->id != $telegram->owner_id) {
-            \Log::warning("Received message from unauthorized source:", $telegram->getUpdate()->toArray());
+        if ($telegram_user->id != $this->telegram->owner_id) {
+            \Log::warning("Received message from unauthorized source:", $this->telegram->getUpdate()->toArray());
             $owner_name = Setting::get('user_first_name', '[redacted]');
-            $telegram->client->sendMessage([
+            $this->telegram->client->sendMessage([
                 'chat_id' => $telegram_user->id,
                 'message' => "✋ Hi {$telegram_user->first_name}! I am currently configured to only respond to my owner ({$owner_name}). If you think this is a mistake, please contact the owner of this bot. Or get your own at https://github.com/avramovic/larabot"
             ]);
@@ -109,8 +109,8 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         }
 
         if (!is_null($file)) {
-            $downloaded_file = $telegram->downloadFile($file['file_id']);
-            \Log::warning("Received photo from telegram: " . $downloaded_file, $telegram->getUpdate()->toArray());
+            $downloaded_file = $this->telegram->downloadFile($file['file_id']);
+            \Log::warning("Received photo from telegram: " . $downloaded_file, $this->telegram->getUpdate()->toArray());
             $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type);
             $file_message->save();
             $conversation = $conversation->withMessage($file_message->toLLMMessage());
@@ -125,7 +125,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             $response = $chatService->send($conversation);
         } catch (\Exception $e) {
             \Log::error($e->getMessage(), $e->getTrace());
-            $telegram->sendMessage("❌ Sorry, something went wrong while processing your request: " . $e->getMessage());
+            $this->telegram->sendMessage("❌ Sorry, something went wrong while processing your request: " . $e->getMessage());
 
             return;
         }
@@ -139,9 +139,9 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         if (!empty($response->getLastText())) {
             $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
             $response_message->save();
-            $telegram->sendMessage($response->getLastText());
+            $this->telegram->sendMessage($response->getLastText());
         } else {
-            $telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: ' . $response->getStopReason()->value . '; response:' . $response->getLastText());
+            $this->telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: ' . $response->getStopReason()->value . '; response:' . $response->getLastText());
         }
     }
 
