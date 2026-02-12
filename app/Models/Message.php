@@ -68,7 +68,7 @@ class Message extends Model
 
         $intro = Blade::render($template, [
             'OS'                 => PHP_OS_FAMILY === 'Darwin' ? 'macOS' : PHP_OS_FAMILY,
-            'uname'              => php_uname('n'),
+            'uname'              => php_uname(),
             'now'                => fn() => now(),
             'cwd'                => base_path(),
             'important_memories' => $important_memories,
