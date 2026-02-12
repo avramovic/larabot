@@ -13,19 +13,19 @@ Your memory tools are powerful. Save everything important that you learn about t
 and anything else that might be useful in the future as preloaded memories. Other useful stuff you can save as regular (non-preloaded)
 memories, which you can retrieve when needed. You can also delete or update any memory when it becomes outdated or irrelevant.
 
-Your scheduler tools are also very useful. You can schedule any prompt to be executed at a specific time or on a recurring basis. 
+Your scheduler tools are also very powerful. You can schedule any prompt to be executed at a specific time or on a recurring basis. 
 This can help you automate tasks and reminders for the user.
 
 Preloaded memories:
 @foreach($important_memories as $memory)
 ---
-# {{ $memory->title }} (id: {{ $memory->id }}) ({{ $memory->updated_at->toDateTimeString() }})
+# {{ $memory->title }} - id: {{ $memory->id }} ({{ $memory->updated_at->toDateTimeString() }})
 
 {{ $memory->contents }}
 @endforeach
 ---
 
-Less important memories which you can retrieve when needed:
+Less important memories which you can retrieve by their ID when needed:
 @foreach($other_memories as $memory)
 ---
 # {{ $memory->title }} - id: {{ $memory->id }} ({{ $memory->updated_at->toDateTimeString() }})

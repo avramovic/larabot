@@ -70,7 +70,7 @@ class Message extends Model
             'OS'                 => PHP_OS_FAMILY === 'Darwin' ? 'macOS' : PHP_OS_FAMILY,
             'uname'              => php_uname(),
             'now'                => fn() => now(),
-            'cwd'                => base_path(),
+            'cwd'                => home_dir(),
             'important_memories' => $important_memories,
             'other_memories'     => $other_memories,
             'bot_name'           => Setting::get('bot_name'),
@@ -84,18 +84,23 @@ class Message extends Model
         ]);
     }
 
-    public static function systemToolExecutionMessage(): self
+    public static function systemToolExecutionMessage(bool $is_auto = false): self
     {
+        $bot_name = Setting::get('bot_name');
         $prompt = <<<MARKDOWN
     # IMPORTANT!
 
-    This is a task execution session. Whatever you respond in this session will be used for logging only.
-    If you agreed with the user or decide otherwise to notify the user about task completion results, use the notify-user-tool to do so!
-    Avoid contacting user during their sleeping schedule if not necessary. You can also schedule a task to notify the user at a later time when they are more likely to be awake if you think it's best for the user experience.
+    - This is a task execution session. Whatever you respond in this session will be used for logging only.
+    - You MUST decide what tools to execute depending on what you want to do with the results - notify user, remember for
+        later use or store as a document in the appropriate folder. When saving files, make
+        sure to give them descriptive names and txt extension if they are text files, so that you can easily find them later.
 MARKDOWN;
 
         $msg = self::systemIntroductoryMessage(false);
-        $msg->contents .= PHP_EOL . PHP_EOL . $prompt;
+
+        if ($is_auto) {
+            $msg->contents .= PHP_EOL . PHP_EOL . $prompt;
+        }
 
         return $msg;
     }
@@ -110,7 +115,7 @@ MARKDOWN;
     I have uploaded a $file_type file which was saved to $file_path. The file info is as follows:
     "$file_info"
 
-    You can move it to Downloads folder or act on it differently if previously agreed.
+    You can move it to Downloads/Desktop/Documents folder or act on it differently if previously agreed.
 MARKDOWN;
 
         return self::make([

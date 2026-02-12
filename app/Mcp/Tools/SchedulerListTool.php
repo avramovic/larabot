@@ -36,7 +36,7 @@ class SchedulerListTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'dummy' => $schema->string()->description('This tool does not require any input, but JSON schema requires at least one property. You can ignore this.')->nullable(),
+            'reason' => $schema->string()->description('REQUIRED. Reason to list scheduled tasks.')->nullable(),
         ];
     }
 }

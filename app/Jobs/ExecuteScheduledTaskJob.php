@@ -31,7 +31,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
     public function handle(LLMChatService $chatService, ChatInterface $chat): void
     {
         \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
-        $intro = Message::systemToolExecutionMessage();
+        $intro = Message::systemToolExecutionMessage($this->task->destination === 'auto');
 
         $chat->sendChatAction();
 
