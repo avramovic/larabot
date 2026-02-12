@@ -9,7 +9,6 @@ use App\Models\Task;
 use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Str;
 use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\Message\LLMMessage;
 
@@ -17,23 +16,25 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 {
     use Queueable;
 
+    protected ChatInterface $chat;
+
     /**
      * Create a new job instance.
      */
     public function __construct(protected Task $task)
     {
-
+        $this->chat = app(ChatInterface::class);
     }
 
     /**
      * Execute the job.
      */
-    public function handle(LLMChatService $chatService, ChatInterface $chat): void
+    public function handle(LLMChatService $chatService): void
     {
         \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
         $intro = Message::systemToolExecutionMessage($this->task->destination === 'auto');
 
-        $chat->sendChatAction();
+        $this->chat->sendChatAction();
 
         $conversation = new LLMConversation([
             $intro->toLLMMessage(),
@@ -53,7 +54,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 //            'file' => file_put_contents(base_path(Str::slug("Task #{$thixs->task->id} executed at " . now()->toDateTimeLocalString())),
 //                $response->getLastText() ?? 'LLM responded with empty content.'),
             'auto' => null,
-            default => $chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
+            default => $this->chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
         };
 
         \Log::debug('LLM scheduled task response:', [
@@ -67,11 +68,15 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        // Log the error to bot's memory for later review
-        Memory::create([
-            'title'    => "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString(),
-            'contents' => "An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
-            'preload'  => false,
-        ]);
+        if ($this->task->destination === 'user') {
+            $this->chat->sendMessage("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
+        } else {
+            // Log the error to bot's memory for later review
+            Memory::create([
+                'title'    => "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString(),
+                'contents' => "An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
+                'preload'  => false,
+            ]);
+        }
     }
 }
