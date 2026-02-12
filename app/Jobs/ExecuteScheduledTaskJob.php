@@ -45,7 +45,6 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         $response = $chatService->send($conversation, true);
 
         match ($this->task->destination) {
-            'user' => $chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
             'memory' => Memory::create([
                 'title'    => "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString(),
                 'contents' => $response->getLastText() ?? 'LLM responded with empty content.',
@@ -53,7 +52,8 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             ]),
 //            'file' => file_put_contents(base_path(Str::slug("Task #{$thixs->task->id} executed at " . now()->toDateTimeLocalString())),
 //                $response->getLastText() ?? 'LLM responded with empty content.'),
-            default => null,
+            'auto' => null,
+            default => $chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
         };
 
         \Log::debug('LLM scheduled task response:', [
