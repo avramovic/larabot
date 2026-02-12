@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use App\Channels\Telegram\Telegram;
 use App\Console\Commands\Setup\SetupLLMModelHelper;
 use App\Console\Commands\Setup\SetupLLMProviderHelper;
+use App\Console\Commands\Setup\SetupOtherHelper;
 use App\Console\Commands\Setup\SetupTelegramHelper;
 use App\Models\Setting;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
-class LarabotConfigCommand extends Command
+class LarabotConfigCommand extends BaseLarabotCommand
 {
-    use SetupTelegramHelper, SetupLLMProviderHelper, SetupLLMModelHelper;
+    use SetupTelegramHelper, SetupLLMProviderHelper, SetupLLMModelHelper, SetupOtherHelper;
 
     /**
      * The name and signature of the console command.
@@ -21,17 +21,16 @@ class LarabotConfigCommand extends Command
      */
     protected $signature = 'larabot:config {--sleep=2 : Seconds to sleep between steps}';
 
-    protected int $sleep = 2;
-
-    public ?Telegram $telegram = null;
-
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Configure Larabot settings.';
+
     protected array $env;
+    protected int $sleep = 2;
+    public ?Telegram $telegram = null;
 
     public function __construct()
     {
@@ -49,7 +48,7 @@ class LarabotConfigCommand extends Command
             'CUSTOM_BASE_URL'      => config('llm.providers.custom.base_url'),
             'SLIDING_WINDOW_SIZE'  => config('llm.sliding_window'),
             'CACHE_PROMPTS'        => config('llm.cache_prompts') ? 'true' : 'false',
-            'TIME_ZONE'            => config('app.timezone'),
+            'APP_TIMEZONE'         => config('app.timezone'),
         ];
     }
 
@@ -73,12 +72,6 @@ class LarabotConfigCommand extends Command
         $this->mainMenu();
     }
 
-    protected function clearScreen(?string $title = null): void
-    {
-        echo "\033[2J\033[H";
-        $this->billBoard('Larabot Configuration' . ($title ? " - $title" : ''));
-    }
-
     protected function runSetupWizard()
     {
         $this->info('Let\'s set up your Larabot configuration.');
@@ -86,31 +79,14 @@ class LarabotConfigCommand extends Command
         $this->setupTelegram();
         $this->setupLLMProvider();
         $this->setupLLMModel();
-//        $this->otherSettings();
+        $this->otherSettings();
         $this->mainMenu();
-    }
-
-    protected function billBoard(?string $message = 'Larabot Configuration!')
-    {
-        $this->info(str_repeat('=', strlen($message) + 6));
-        $this->info('|' . str_repeat(' ', strlen($message) + 4) . '|');
-        $this->info(strtoupper("|  $message  |"));
-        $this->info('|' . str_repeat(' ', strlen($message) + 4) . '|');
-        $this->info(str_repeat('=', strlen($message) + 6));
-        $this->line('');
     }
 
     protected function mainMenu(): void
     {
         $this->clearScreen();
-
-        $options = [
-            'Telegram Bot (' . Setting::get('bot_name', 'Larabot') . ')',
-            'LLM Provider (' . ucwords($this->env('LLM_PROVIDER', 'custom')) . ')',
-            'LLM Model (' . $this->env('LLM_MODEL', 'kimi-k2.5:cloud') . ')',
-            'Other Settings',
-            'Exit',
-        ];
+        $options = $this->mainMenuOptions();
 
         while ($selected = $this->choice('What do you want to configure?', $options, 'Exit')) {
             match (true) {
@@ -120,10 +96,23 @@ class LarabotConfigCommand extends Command
                 str_starts_with($selected, 'Other Settings') => $this->otherSettings(),
                 default => $this->exit(),
             };
+
+            $options = $this->mainMenuOptions();
             $this->sleep();
             $this->clearScreen();
         }
 
+    }
+
+    protected function mainMenuOptions(): array
+    {
+        return [
+            'Telegram Bot (' . Setting::get('bot_name', 'Larabot') . ')',
+            'LLM Provider (' . ucwords($this->env('LLM_PROVIDER', 'custom')) . ')',
+            'LLM Model (' . $this->env('LLM_MODEL', 'kimi-k2.5:cloud') . ')',
+            'Other Settings',
+            'Exit',
+        ];
     }
 
     protected function exit()

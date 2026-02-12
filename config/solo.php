@@ -52,7 +52,8 @@ return [
     |
     */
     'commands' => [
-        'Cockpit' => Command::from('php artisan larabot:cockpit --solo')->interactive(),
+//        'Chat' => Command::from('php artisan larabot:chat')->interactive(),
+        'Dashboard' => Command::from('php artisan larabot:dashboard --solo')->interactive(),
         'Telegram' => Command::from('php artisan larabot:telegram:listen --daemon'),
         'Queue' => $queue_work,
         'Scheduler' => Command::from('php artisan larabot:cron'),
