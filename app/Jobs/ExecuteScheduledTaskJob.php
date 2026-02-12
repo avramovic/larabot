@@ -64,4 +64,14 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             $this->task->decrement('repeat');
         }
     }
+
+    public function failed(\Throwable $exception): void
+    {
+        // Log the error to bot's memory for later review
+        Memory::create([
+            'title'    => "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString(),
+            'contents' => "An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
+            'preload'  => false,
+        ]);
+    }
 }

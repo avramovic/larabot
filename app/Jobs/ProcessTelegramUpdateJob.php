@@ -110,7 +110,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if (!is_null($file)) {
             $downloaded_file = $telegram->downloadFile($file['file_id']);
-            \Log::warning("Received photo from telegram: ".$downloaded_file, $telegram->getUpdate()->toArray());
+            \Log::warning("Received photo from telegram: " . $downloaded_file, $telegram->getUpdate()->toArray());
             $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type);
             $file_message->save();
             $conversation = $conversation->withMessage($file_message->toLLMMessage());
@@ -141,7 +141,18 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             $response_message->save();
             $telegram->sendMessage($response->getLastText());
         } else {
-            $telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: '.$response->getStopReason()->value.'; response:'.$response->getLastText());
+            $telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: ' . $response->getStopReason()->value . '; response:' . $response->getLastText());
+        }
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        // Notify the user via Telegram that an error occurred, but don't expose sensitive details
+        try {
+            $this->telegram->sendMessage('❌ ' . $exception->getMessage());
+        } catch (\Exception $e) {
+            \Log::error("Failed to send error message (" . $exception->getMessage() . ") to Telegram user because of: " . $e->getMessage(),
+                $e->getTrace());
         }
     }
 
