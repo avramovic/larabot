@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Channels\Telegram\Telegram;
 use App\Console\Commands\Setup\SetupLLMModelHelper;
 use App\Console\Commands\Setup\SetupLLMProviderHelper;
 use App\Console\Commands\Setup\SetupTelegramHelper;
@@ -22,12 +23,35 @@ class LarabotConfigCommand extends Command
 
     protected int $sleep = 2;
 
+    public ?Telegram $telegram = null;
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Configure Larabot settings.';
+    protected array $env;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->env = [
+            'TELEGRAM_BOT_TOKEN'   => config('channels.channels.telegram.bot_token'),
+            'LLM_PROVIDER'         => config('llm.default_provider'),
+            'LLM_MODEL'            => config('models.default_model'),
+            'BRAVE_SEARCH_API_KEY' => config('services.brave_search.api_key'),
+            'OPENAI_API_KEY'       => config('llm.providers.openai.api_key'),
+            'OPENAI_ORG_KEY'       => config('llm.providers.openai.org_key'),
+            'ANTHROPIC_API_KEY'    => config('llm.providers.anthropic.api_key'),
+            'GEMINI_API_KEY'       => config('llm.providers.gemini.api_key'),
+            'CUSTOM_API_KEY'       => config('llm.providers.custom.api_key'),
+            'CUSTOM_BASE_URL'      => config('llm.providers.custom.base_url'),
+            'SLIDING_WINDOW_SIZE'  => config('llm.sliding_window'),
+            'CACHE_PROMPTS'        => config('llm.cache_prompts') ? 'true' : 'false',
+            'TIME_ZONE'            => config('app.timezone'),
+        ];
+    }
 
     /**
      * Execute the console command.
@@ -44,6 +68,8 @@ class LarabotConfigCommand extends Command
             $this->runSetupWizard();
         }
 
+        Artisan::call('config:clear');
+
         $this->mainMenu();
     }
 
@@ -57,9 +83,9 @@ class LarabotConfigCommand extends Command
     {
         $this->info('Let\'s set up your Larabot configuration.');
 
-        $this->setupTelegram(false);
-        $this->setupLLMProvider(false);
-        $this->setupLLMModel(false);
+        $this->setupTelegram();
+        $this->setupLLMProvider();
+        $this->setupLLMModel();
 //        $this->otherSettings();
         $this->mainMenu();
     }
@@ -80,25 +106,35 @@ class LarabotConfigCommand extends Command
 
         $options = [
             'Telegram Bot (' . Setting::get('bot_name', 'Larabot') . ')',
-            'LLM Provider (' . config('llm.default_provider', 'Not set') . ')',
-            'LLM Model (' . config('models.default_model', 'Not set') . ')',
+            'LLM Provider (' . ucwords($this->env('LLM_PROVIDER', 'custom')) . ')',
+            'LLM Model (' . $this->env('LLM_MODEL', 'kimi-k2.5:cloud') . ')',
             'Other Settings',
             'Exit',
         ];
 
-        $selected = $this->choice('What do you want to configure?', $options, 'Exit');
+        while ($selected = $this->choice('What do you want to configure?', $options, 'Exit')) {
+            match (true) {
+                str_starts_with($selected, 'Telegram Bot') => $this->setupTelegram(),
+                str_starts_with($selected, 'LLM Provider') => $this->setupLLMProvider(),
+                str_starts_with($selected, 'LLM Model') => $this->setupLLMModel(),
+                str_starts_with($selected, 'Other Settings') => $this->otherSettings(),
+                default => $this->exit(),
+            };
+            $this->sleep();
+            $this->clearScreen();
+        }
 
-        match (true) {
-            str_starts_with($selected, 'Telegram Bot') => $this->setupTelegram(),
-            str_starts_with($selected, 'LLM Provider') => $this->setupLLMProvider(),
-            str_starts_with($selected, 'LLM Model') => $this->setupLLMModel(),
-            str_starts_with($selected, 'Other Settings') => $this->otherSettings(),
-            default => $this->line('Exiting configuration. You can run this command again anytime to change settings.'),
-        };
     }
 
-    public function writeToEnv(string $key, string $value): bool|int
+    protected function exit()
     {
+        $this->line('Exiting configuration. You can run this command again anytime to change settings.');
+        exit(0);
+    }
+
+    protected function writeToEnv(string $key, string $value): bool|int
+    {
+        $this->env[$key] = $value;
         $envPath = base_path('.env');
         if (!file_exists($envPath)) {
             return file_put_contents($envPath, "$key=" . $this->quoteString($value) . PHP_EOL);
@@ -121,6 +157,11 @@ class LarabotConfigCommand extends Command
         return file_put_contents($envPath, implode(PHP_EOL, $env) . PHP_EOL);
     }
 
+    protected function env(string $key, mixed $default = null): mixed
+    {
+        return $this->env[$key] ?? $default;
+    }
+
     protected function quoteString(mixed $value): string
     {
         if (is_string($value) && !is_numeric($value)) {
@@ -134,10 +175,18 @@ class LarabotConfigCommand extends Command
         return (string) $value;
     }
 
-    public function sleep(?int $seconds = null): int
+    protected function sleep(?int $seconds = null): int
     {
         return sleep($seconds ?? $this->sleep);
     }
 
-
+    protected function beautifyProviderName(string $name): string
+    {
+        return match ($name) {
+            'openai' => 'OpenAI',
+            'anthropic' => 'Anthropic',
+            'gemini' => 'Google Gemini',
+            default => 'OpenAI-compatible (ollama)',
+        };
+    }
 }

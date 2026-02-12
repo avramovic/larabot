@@ -3,7 +3,7 @@
 return [
     'default_provider' => env('LLM_PROVIDER', 'custom'),
 
-    'cache_prompts' => true,
+    'cache_prompts' => env('CACHE_PROMPTS', true),
     'sliding_window' => env('SLIDING_WINDOW_SIZE', 20),
 
     'providers' => [

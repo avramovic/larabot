@@ -8,8 +8,6 @@ use App\Models\Setting;
 use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Soukicz\Llm\Client\StopReason;
-use Soukicz\Llm\Message\LLMMessage;
 use Telegram\Bot\Objects\Update;
 
 class ProcessTelegramUpdateJob implements ShouldQueue
