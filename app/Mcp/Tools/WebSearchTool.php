@@ -60,7 +60,19 @@ class WebSearchTool extends BaseMcpTool
             return Response::error('HTTP request failed: ' . $e->getMessage());
         }
 
-        return Response::structured($response->json($result_filter));
+        $results = $response->json($result_filter.'.results', []);
+
+        $results = array_map(function ($result) {
+            return [
+                'title' => $result['title'] ?? '',
+                'url' => $result['url'] ?? '',
+                'description' => $result['description'] ?? '',
+            ];
+        }, $results);
+
+        return Response::structured([
+            'results' => $results,
+        ]);
     }
 
     /**

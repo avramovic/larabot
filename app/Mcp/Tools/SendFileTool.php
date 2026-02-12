@@ -8,7 +8,6 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use Laravel\Mcp\Server\Tool;
 
 class SendFileTool extends BaseMcpTool
 {
@@ -40,14 +39,14 @@ class SendFileTool extends BaseMcpTool
             $file_type = $this->mimeToFileType($this->guessFileMimeType($file_path));
         }
 
-        if ($file_type === FileType::IMAGE) {
+        if (!$is_url && $file_type === FileType::IMAGE) {
             // Change file type to OTHER if the image is larger than 10MB but less than or equal to 50MB
             if (filesize($file_path) > 10 * 1024 * 1024 && filesize($file_path) <= 50 * 1024 * 1024) {
                 $file_type = FileType::OTHER;
             }
         }
 
-        if (filesize($file_path) > 50 * 1024 * 1024) {
+        if (!$is_url && filesize($file_path) > 50 * 1024 * 1024) {
             return Response::error('The provided file is too large. Maximum allowed size is 50MB.');
         }
 
@@ -69,7 +68,7 @@ class SendFileTool extends BaseMcpTool
                 $this->chat->sendFile($file_path);
         }
 
-        return Response::structured(pathinfo($file_path));
+        return Response::text('File sent successfully.');
     }
 
     private function guessUrlMimeType(string $url): string

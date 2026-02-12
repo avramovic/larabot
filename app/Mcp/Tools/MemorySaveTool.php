@@ -4,8 +4,8 @@ namespace App\Mcp\Tools;
 
 use App\Mcp\BaseMcpTool;
 use App\Models\Memory;
-use App\Models\Task;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -16,8 +16,8 @@ class MemorySaveTool extends BaseMcpTool
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        Add a memory which can be retrieved later. The memory will be stored in the database and can be retrieved by other tools or prompts.
-         You can use this tool to store information that you want to remember for later use.
+        Add a memory which can be retrieved later. The memory will be stored in the database and can be retrieved by other tools.
+        Memories longer than 500 characters will not be preloaded in the conversation context by default, but can still be retrieved when needed.
     MARKDOWN;
 
     /**
@@ -31,10 +31,18 @@ class MemorySaveTool extends BaseMcpTool
             'preload'  => ['string'],
         ]);
 
+        $contents = $request->get('contents');
+        $preload = $this->checkTruthiness($request->get('preload', false));
+        $title = Str::limit($request->get('title'), 255);
+
+        if (strlen($contents) > 500) {
+            $preload = false;
+        }
+
         $task = Memory::create([
-            'title'    => $request->get('title'),
-            'contents' => $request->get('contents'),
-            'preload'  => $this->checkTruthiness($request->get('preload', false)),
+            'title'    => $title,
+            'contents' => $contents,
+            'preload'  => $preload,
         ]);
 
         return Response::structured($task->toArray());
@@ -48,8 +56,8 @@ class MemorySaveTool extends BaseMcpTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'title'    => $schema->string()->description('REQUIRED. Memory title')->required(),
-            'contents' => $schema->string()->description('REQUIRED. Memory contents')->required(),
+            'title'    => $schema->string()->description('REQUIRED. Memory title. Max 255 characters')->required(),
+            'contents' => $schema->string()->description('REQUIRED. Memory contents. If length is over 500 characters it can not be save as preloaded')->required(),
             'preload'  => $schema->string()->description('REQUIRED. Should be preloaded for every conversation (true/false)')->required(),
         ];
     }

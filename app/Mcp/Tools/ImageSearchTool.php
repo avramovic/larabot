@@ -61,10 +61,6 @@ class ImageSearchTool extends BaseMcpTool
             return [
                 'title' => Arr::get($item, 'title'),
                 'image_url' => Arr::get($item, 'properties.url'),
-                'thumbnail' => [
-                    'url' => Arr::get($item, 'thumbnail.src'),
-                    'alt' => Arr::get($item, 'properties.placeholder'),
-                ],
                 'confidence' => Arr::get($item, 'confidence'),
             ];
         }, $result['results']);
