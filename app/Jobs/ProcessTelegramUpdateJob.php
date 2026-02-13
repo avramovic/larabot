@@ -14,6 +14,8 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 {
     use Queueable;
 
+    public $timeout = 1200;
+
     protected ?Telegram $telegram = null;
 
     /**

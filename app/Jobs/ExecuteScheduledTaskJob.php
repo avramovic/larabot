@@ -16,6 +16,8 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 {
     use Queueable;
 
+    public $timeout = 1200;
+
     protected ChatInterface $chat;
 
     /**
