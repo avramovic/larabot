@@ -40,7 +40,7 @@ class Message extends Model
         return self::make([
             'role'     => $message->isUser() ? 'user' : ($message->isAssistant() ? 'assistant' : 'system'),
             'contents' => trim($messages[count($messages) - 1]?->getText() ?? ''),
-            'uuid'     => Str::uuid(),
+            'uuid'     => (string) Str::uuid(),
         ]);
     }
 

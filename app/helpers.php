@@ -1,5 +1,7 @@
 <?php
 
+use SoloTerm\Solo\Commands\Command;
+
 if (!function_exists('home_dir')) {
     function home_dir(string $path = ''): string
     {
@@ -34,5 +36,39 @@ if (!function_exists('normalize_path')) {
     }
 }
 
-// Add your custom helper functions below
+if (!function_exists('array_insert_after_key')) {
+    function array_insert_after_key(array $array, string $afterKey, array $insert): array
+    {
+        $result = [];
 
+        foreach ($array as $key => $value) {
+            $result[$key] = $value;
+
+            if ($key === $afterKey) {
+                foreach ($insert as $k => $v) {
+                    $result[$k] = $v;
+                }
+            }
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('larabot_dynamic_queue_workers')) {
+    function larabot_dynamic_queue_workers($queue_processes): array
+    {
+        $queue_work = Command::from('php artisan queue:work');
+        if (config('queue.default') === 'sync') {
+            $queue_work = $queue_work->lazy();
+        }
+
+        $queue_commands = [];
+        for ($i = 0; $i < $queue_processes; $i++) {
+            $proc_name = 'Queue' . ($queue_processes > 1 ? " ".$i+1 : '');
+            $queue_commands[$proc_name] = ($i == 0) ? $queue_work : clone $queue_work;
+        }
+
+        return $queue_commands;
+    }
+}

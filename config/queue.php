@@ -15,6 +15,8 @@ return [
 
     'default' => env('QUEUE_CONNECTION', 'database'),
 
+    'processes' => (int) env('QUEUE_WORKER_PROCESSES', 2),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections

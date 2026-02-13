@@ -15,10 +15,19 @@ if (!class_exists('\SoloTerm\Solo\Manager')) {
 }
 
 
-$queue_work = Command::from('php artisan queue:work');
-if (env('queue.default') === 'sync') {
-    $queue_work = $queue_work->lazy();
-}
+
+
+$commands = [
+//        'Chat' => Command::from('php artisan larabot:chat')->interactive(),
+    'Dashboard'  => Command::from('php artisan larabot:dashboard --solo')->interactive(),
+    'Telegram'   => Command::from('php artisan larabot:telegram:listen --daemon'),
+    'Scheduler'  => Command::from('php artisan larabot:cron'),
+    'Config'     => Command::from('php artisan larabot:config')->interactive(),
+    'Logs'       => EnhancedTailCommand::file(storage_path('logs/laravel.log')),
+    'MCP server' => Command::from('php artisan serve')->lazy(),
+];
+
+$commands = array_insert_after_key($commands, 'Telegram', larabot_dynamic_queue_workers(config('queue.processes', 2)));
 
 return [
     /*
@@ -28,9 +37,9 @@ return [
     */
     'theme' => env('SOLO_THEME', 'dark'),
 
-    'themes' => [
+    'themes'     => [
         'light' => Themes\LightTheme::class,
-        'dark' => Themes\DarkTheme::class,
+        'dark'  => Themes\DarkTheme::class,
     ],
 
     /*
@@ -40,9 +49,9 @@ return [
     */
     'keybinding' => env('SOLO_KEYBINDING', 'default'),
 
-    'keybindings' => [
+    'keybindings'      => [
         'default' => Hotkeys\DefaultHotkeys::class,
-        'vim' => Hotkeys\VimHotkeys::class,
+        'vim'     => Hotkeys\VimHotkeys::class,
     ],
 
     /*
@@ -51,16 +60,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'commands' => [
-//        'Chat' => Command::from('php artisan larabot:chat')->interactive(),
-        'Dashboard' => Command::from('php artisan larabot:dashboard --solo')->interactive(),
-        'Telegram' => Command::from('php artisan larabot:telegram:listen --daemon'),
-        'Queue' => $queue_work,
-        'Scheduler' => Command::from('php artisan larabot:cron'),
-        'Config' => Command::from('php artisan larabot:config')->interactive(),
-        'Logs' => EnhancedTailCommand::file(storage_path('logs/laravel.log')),
-        'MCP server' => Command::from('php artisan serve')->lazy(),
-    ],
+    'commands'         => $commands,
 
     /**
      * By default, we prefer to use GNU Screen as an intermediary between Solo
@@ -68,7 +68,7 @@ return [
      * PTY and some ANSI rendering things. Not all environments have Screen,
      * so you can turn it off for a slightly degraded experience.
      */
-    'use_screen' => (bool) env('SOLO_USE_SCREEN', true),
+    'use_screen'       => (bool) env('SOLO_USE_SCREEN', true),
 
     /*
     |--------------------------------------------------------------------------
