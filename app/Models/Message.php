@@ -86,7 +86,6 @@ class Message extends Model
 
     public static function systemToolExecutionMessage(bool $is_auto = false): self
     {
-        $bot_name = Setting::get('bot_name');
         $prompt = <<<MARKDOWN
     # IMPORTANT!
 

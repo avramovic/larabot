@@ -9,7 +9,9 @@ use App\Models\Task;
 use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Str;
 use Soukicz\Llm\LLMConversation;
+use Soukicz\Llm\LLMResponse;
 use Soukicz\Llm\Message\LLMMessage;
 
 class ExecuteScheduledTaskJob implements ShouldQueue
@@ -48,15 +50,11 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         $response = $chatService->send($conversation, true);
 
         match ($this->task->destination) {
-            'memory' => Memory::create([
-                'title'    => "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString(),
-                'contents' => $response->getLastText() ?? 'LLM responded with empty content.',
-                'preload'  => false,
-            ]),
+            'memory' => $this->saveMemory($response),
 //            'file' => file_put_contents(base_path(Str::slug("Task #{$thixs->task->id} executed at " . now()->toDateTimeLocalString())),
 //                $response->getLastText() ?? 'LLM responded with empty content.'),
             'auto' => null,
-            default => $this->chat->sendMessage($response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."),
+            default => $this->notifyUser($response),
         };
 
         \Log::debug('LLM scheduled task response:', [
@@ -68,17 +66,42 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         }
     }
 
+    protected function notifyUser(LLMResponse|string $response): void
+    {
+        $text = $response instanceof LLMResponse
+            ? $response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."
+            : $response;
+
+        Message::create([
+            'role' => 'assistant',
+            'text' => $text,
+            'uuid' => (string) Str::uuid(),
+        ]);
+        $this->chat->sendMessage($text);
+    }
+
+    protected function saveMemory(LLMResponse|string $response, ?string $title = null): void
+    {
+        $text = $response instanceof LLMResponse
+            ? $response->getLastText() ?? 'LLM responded with empty content.'
+            : $response;
+
+        $title = $title ?? "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString();
+
+        Memory::create([
+            'title'    => $title,
+            'contents' => $text,
+            'preload'  => false,
+        ]);
+    }
+
     public function failed(\Throwable $exception): void
     {
+        // handle failure, e.g. memorize the error, notify owner, etc.
         if ($this->task->destination === 'user') {
-            $this->chat->sendMessage("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
+            $this->notifyUser("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
         } else {
-            // Log the error to bot's memory for later review
-            Memory::create([
-                'title'    => "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString(),
-                'contents' => "An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
-                'preload'  => false,
-            ]);
+            $this->saveMemory("An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(), "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString());
         }
     }
 }
