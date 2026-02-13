@@ -66,7 +66,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             $owner_name = Setting::get('user_first_name', '[redacted]');
             $this->telegram->client->sendMessage([
                 'chat_id' => $telegram_user->id,
-                'message' => "✋ Hi {$telegram_user->first_name}! I am currently configured to only respond to my owner ({$owner_name}). If you think this is a mistake, please contact the owner of this bot. Or get your own at https://github.com/avramovic/larabot"
+                'text'    => "✋ Hi {$telegram_user->first_name}! I am currently configured to only respond to my owner ({$owner_name}). If you think this is a mistake, please contact the owner of this bot. Or get your own at https://github.com/avramovic/larabot"
             ]);
 
             return;
