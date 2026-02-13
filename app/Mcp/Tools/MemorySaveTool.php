@@ -17,7 +17,7 @@ class MemorySaveTool extends BaseMcpTool
      */
     protected string $description = <<<'MARKDOWN'
         Add a memory which can be retrieved later. The memory will be stored in the database and can be retrieved by other tools.
-        Memories longer than 500 characters will not be preloaded in the conversation context by default, but can still be retrieved when needed.
+        Memories longer than 1000 characters will not be preloaded in the conversation context by default, but can still be retrieved when needed.
     MARKDOWN;
 
     /**
@@ -35,7 +35,7 @@ class MemorySaveTool extends BaseMcpTool
         $preload = $this->checkTruthiness($request->get('preload', false));
         $title = Str::limit($request->get('title'), 255);
 
-        if (strlen($contents) > 500) {
+        if (strlen($contents) > 1000) {
             $preload = false;
         }
 
@@ -57,7 +57,7 @@ class MemorySaveTool extends BaseMcpTool
     {
         return [
             'title'    => $schema->string()->description('REQUIRED. Memory title. Max 255 characters')->required(),
-            'contents' => $schema->string()->description('REQUIRED. Memory contents. If length is over 500 characters it can not be save as preloaded')->required(),
+            'contents' => $schema->string()->description('REQUIRED. Memory contents. If length is over 1000 characters it can not be save as preloaded')->required(),
             'preload'  => $schema->string()->description('REQUIRED. Should be preloaded for every conversation (true/false)')->required(),
         ];
     }
