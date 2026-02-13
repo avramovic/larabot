@@ -20,7 +20,7 @@ class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        $setting = static::$settings->firstWhere('key', $key);
+        $setting = self::firstWhere('key', $key)->get();
         if (!$setting) {
             return $default;
         }
