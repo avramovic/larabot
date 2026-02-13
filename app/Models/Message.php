@@ -59,8 +59,8 @@ class Message extends Model
         $template = file_get_contents(base_path('soul.md'));
 
         if ($preload_memories) {
-            $important_memories = Memory::where('preload', true)->get();
-            $other_memories = Memory::where('preload', false)->get();
+            $important_memories = Memory::where('important', true)->get();
+            $other_memories = Memory::where('important', false)->get();
         } else {
             $important_memories = collect();
             $other_memories = Memory::all();
@@ -84,17 +84,18 @@ class Message extends Model
         ]);
     }
 
-    public static function systemToolExecutionMessage(bool $is_auto = false): self
+    public static function systemToolExecutionMessage(Task $task): self
     {
         $prompt = <<<MARKDOWN
     # IMPORTANT!
 
-    - This is a task execution session. Whatever you respond in this session will be used for logging only.
-    - You MUST decide what tools to execute depending on what you want to do with the results - notify user, remember for
-        later use or store as a document in the appropriate folder. When saving files, make
-        sure to give them descriptive names and txt extension if they are text files, so that you can easily find them later.
+    - This is a task execution session. Do what the user asks you and then process the results with the tools at your disposal.
+    - The task is not complete until you use a tool to send the result back to the user, save it as a memory OR
+        save it to a file (and notify the user/memorize info about the file).
+    - If you do not use any tool, the task will be considered failed and the response will not be visible to the user.
 MARKDOWN;
 
+        $is_auto = ($task->destination === 'auto');
         $msg = self::systemIntroductoryMessage(false);
 
         if ($is_auto) {

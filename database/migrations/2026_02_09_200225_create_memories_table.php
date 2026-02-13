@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->mediumText('contents');
-            $table->boolean('preload')->default(false);
+            $table->boolean('important')->default(false);
             $table->timestamps();
         });
     }

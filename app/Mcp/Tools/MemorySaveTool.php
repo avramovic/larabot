@@ -26,23 +26,23 @@ class MemorySaveTool extends BaseMcpTool
     public function handle(Request $request): Response|ResponseFactory
     {
         $request->validate([
-            'title'    => ['required', 'string'],
-            'contents' => ['required', 'string'],
-            'preload'  => ['string'],
+            'title'     => ['required', 'string'],
+            'contents'  => ['required', 'string'],
+            'important' => ['string'],
         ]);
 
         $contents = $request->get('contents');
-        $preload = $this->checkTruthiness($request->get('preload', false));
+        $important = $this->checkTruthiness($request->get('important', false));
         $title = Str::limit($request->get('title'), 255);
 
         if (strlen($contents) > 1000) {
-            $preload = false;
+            $important = false;
         }
 
         $task = Memory::create([
-            'title'    => $title,
-            'contents' => $contents,
-            'preload'  => $preload,
+            'title'     => $title,
+            'contents'  => $contents,
+            'important' => $important,
         ]);
 
         return Response::structured($task->toArray());
@@ -56,9 +56,9 @@ class MemorySaveTool extends BaseMcpTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'title'    => $schema->string()->description('REQUIRED. Memory title. Max 255 characters')->required(),
-            'contents' => $schema->string()->description('REQUIRED. Memory contents. If length is over 1000 characters it can not be save as preloaded')->required(),
-            'preload'  => $schema->string()->description('REQUIRED. Should be preloaded for every conversation (true/false)')->required(),
+            'title'     => $schema->string()->description('REQUIRED. Memory title. Max 255 characters')->required(),
+            'contents'  => $schema->string()->description('REQUIRED. Memory contents. If length is over 1000 characters it can not be save as preloaded')->required(),
+            'important' => $schema->string()->description('REQUIRED. Should be preloaded for every conversation (true/false)')->required(),
         ];
     }
 }

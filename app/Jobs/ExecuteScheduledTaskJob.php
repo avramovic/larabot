@@ -36,7 +36,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
     public function handle(LLMChatService $chatService): void
     {
         \Log::info("Executing scheduled task #{$this->task->id}: {$this->task->prompt}");
-        $intro = Message::systemToolExecutionMessage($this->task->destination === 'auto');
+        $intro = Message::systemToolExecutionMessage($this->task);
 
         $this->chat->sendChatAction();
 
@@ -45,7 +45,8 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             LLMMessage::createFromUserString($this->task->prompt),
         ]);
 
-        \Log::debug('Executing LLM conversation for task #'.$this->task->id . ': ', ['convo' => $conversation->jsonSerialize()]);
+        \Log::debug('Executing LLM conversation for task #' . $this->task->id . ': ',
+            ['convo' => $conversation->jsonSerialize()]);
 
         $response = $chatService->send($conversation, true);
 
@@ -89,9 +90,9 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         $title = $title ?? "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString();
 
         Memory::create([
-            'title'    => $title,
-            'contents' => $text,
-            'preload'  => false,
+            'title'     => $title,
+            'contents'  => $text,
+            'important' => false,
         ]);
     }
 
@@ -101,7 +102,8 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         if ($this->task->destination === 'user') {
             $this->notifyUser("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
         } else {
-            $this->saveMemory("An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(), "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString());
+            $this->saveMemory("An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
+                "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString());
         }
     }
 }

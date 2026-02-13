@@ -18,7 +18,7 @@ class SchedulerAddTool extends Tool
         Add a scheduled task to the system scheduler. Schedule and prompt are required. Repeat is optional, default is -1 (infinite).
         Destination can be:
         - user: send the execution result to the user as a message (default)
-        - memory: save the execution result as a new (non-preloaded) memory entry
+        - memory: save the execution result as a new (non-important) memory entry
         - auto: let the system decide the best way to handle the result based on prompt contents and available tools
     MARKDOWN;
 

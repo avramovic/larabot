@@ -48,12 +48,12 @@ class LLMChatService
     {
         if ($sliding_window === -1 || empty($sliding_window)) {
             $messages = Message::where('role', '!=', 'system')->orderBy('created_at', 'desc')->get()->reverse();
-            $messages->prepend(Message::systemIntroductoryMessage());
         } else {
             $messages = Message::where('role', '!=', 'system')->orderBy('created_at', 'desc')
                 ->take($sliding_window)->get()->reverse();
-            $messages->prepend(Message::systemIntroductoryMessage());
         }
+
+        $messages->prepend(Message::systemIntroductoryMessage());
 
         $llm_messages = [];
         foreach ($messages as $message) {
