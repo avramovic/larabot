@@ -143,7 +143,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             $response_message->save();
             $this->telegram->sendMessage($response->getLastText());
         } else {
-            $this->telegram->sendMessage('❌ Sorry, I was not able to generate a response to your message. Stop reason: ' . $response->getStopReason()->value . '; response:' . $response->getLastText());
+            $this->telegram->sendMessage('❌ LLM returned empty response. Stop reason: ' . $response->getStopReason()->value . '; try rephrasing your prompt.');
         }
     }
 
