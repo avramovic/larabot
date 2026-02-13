@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Soukicz\Llm\LLMConversation;
 use Telegram\Bot\Objects\Update;
 
 class ProcessTelegramUpdateJob implements ShouldQueue
@@ -80,7 +81,39 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         }
 
         $conversation = $chatService->getConversation(config('llm.sliding_window', -1));
+        $conversation = $this->handleMediaUpload($conversation);
 
+        if (isset($telegram_message->text)) {
+            $message = Message::fromTelegramMessage($telegram_message);
+            $conversation = $conversation->withMessage($message->toLLMMessage());
+        }
+
+        try {
+            $response = $chatService->send($conversation);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage(), $e->getTrace());
+            $this->telegram->sendMessage("❌ LLM request failed: " . $e->getMessage());
+
+            return;
+        }
+
+        if (isset($message)) {
+            $message->save();
+        }
+
+        Setting::set('telegram_offset', $this->update['update_id']);
+
+        if (!empty($response->getLastText())) {
+            $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
+            $response_message->save();
+            $this->telegram->sendMessage($response->getLastText());
+        } else {
+            $this->telegram->sendMessage('❌ LLM returned empty response. Stop reason: ' . $response->getStopReason()->value . '; try rephrasing your prompt.');
+        }
+    }
+
+    protected function handleMediaUpload(LLMConversation $conversation): LLMConversation
+    {
         $file = null;
         $file_type = null;
 
@@ -102,7 +135,6 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         if (isset($telegram_message->video)) {
             $file = $telegram_message->video;
             $file_type = 'video';
-
         }
 
         if (isset($telegram_message->voice)) {
@@ -112,39 +144,13 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if (!is_null($file)) {
             $downloaded_file = $this->telegram->downloadFile($file['file_id']);
-            \Log::warning("Received photo from telegram: " . $downloaded_file, $this->telegram->getUpdate()->toArray());
+            \Log::info("Received photo from telegram: " . $downloaded_file, $this->telegram->getUpdate()->toArray());
             $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type);
             $file_message->save();
             $conversation = $conversation->withMessage($file_message->toLLMMessage());
         }
 
-        if (isset($telegram_message->text)) {
-            $message = Message::fromTelegramMessage($telegram_message);
-            $conversation = $conversation->withMessage($message->toLLMMessage());
-        }
-
-        try {
-            $response = $chatService->send($conversation);
-        } catch (\Exception $e) {
-            \Log::error($e->getMessage(), $e->getTrace());
-            $this->telegram->sendMessage("❌ Sorry, something went wrong while processing your request: " . $e->getMessage());
-
-            return;
-        }
-
-        if (isset($message)) {
-            $message->save();
-        }
-
-        Setting::set('telegram_offset', $this->update['update_id']);
-
-        if (!empty($response->getLastText())) {
-            $response_message = Message::fromLLMMessage($response->getConversation()->getLastMessage());
-            $response_message->save();
-            $this->telegram->sendMessage($response->getLastText());
-        } else {
-            $this->telegram->sendMessage('❌ LLM returned empty response. Stop reason: ' . $response->getStopReason()->value . '; try rephrasing your prompt.');
-        }
+        return $conversation;
     }
 
     public function failed(\Throwable $exception): void

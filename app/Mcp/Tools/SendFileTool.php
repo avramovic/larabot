@@ -16,6 +16,7 @@ class SendFileTool extends BaseMcpTool
      */
     protected string $description = <<<'MARKDOWN'
         Send a file to the user. Max 50 MB.
+        If you need to send a file larger than 50 MB, find an alternative way to upload the file and provide a URL.
     MARKDOWN;
 
     /**
@@ -47,7 +48,7 @@ class SendFileTool extends BaseMcpTool
         }
 
         if (!$is_url && filesize($file_path) > 50 * 1024 * 1024) {
-            return Response::error('The provided file is too large. Maximum allowed size is 50MB.');
+            return Response::error('The provided file is too large. Maximum allowed size is 50MB. Find alternative way to upload the file and provide a URL.');
         }
 
         switch ($file_type) {
