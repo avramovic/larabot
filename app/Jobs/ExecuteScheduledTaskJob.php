@@ -73,9 +73,9 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             : $response;
 
         Message::create([
-            'role' => 'assistant',
-            'text' => $text,
-            'uuid' => (string) Str::uuid(),
+            'role'     => 'assistant',
+            'contents' => $text,
+            'uuid'     => (string) Str::uuid(),
         ]);
         $this->chat->sendMessage($text);
     }
