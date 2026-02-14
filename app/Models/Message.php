@@ -92,13 +92,12 @@ class Message extends Model
     - This is a task execution session. Do what the user asks you and then process the results with the tools at your disposal.
     - The task is not complete until you use a tool to send the result back to the user, save it as a memory OR
         save it to a file (and notify the user/memorize info about the file).
-    - If you do not use any tool, the task will be considered failed and the response will not be visible to the user.
+    - If you do not use any tool to process the results, the task will be considered failed and the response will not be visible to the user.
 MARKDOWN;
 
-        $is_auto = ($task->destination === 'auto');
         $msg = self::systemIntroductoryMessage(false);
 
-        if ($is_auto) {
+        if ($task->destination === 'auto') {
             $msg->contents .= PHP_EOL . PHP_EOL . $prompt;
         }
 

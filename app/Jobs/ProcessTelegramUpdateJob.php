@@ -85,6 +85,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if (isset($telegram_message->text)) {
             $message = Message::fromTelegramMessage($telegram_message);
+            $message->save();
             $conversation = $conversation->withMessage($message->toLLMMessage());
         }
 
@@ -95,10 +96,6 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             $this->telegram->sendMessage("❌ LLM request failed: " . $e->getMessage());
 
             return;
-        }
-
-        if (isset($message)) {
-            $message->save();
         }
 
         Setting::set('telegram_offset', $this->update['update_id']);
