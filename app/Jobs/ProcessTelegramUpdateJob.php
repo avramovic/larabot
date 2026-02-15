@@ -9,6 +9,7 @@ use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Soukicz\Llm\LLMConversation;
+use Telegram\Bot\Objects\Message as TelegramMessage;
 use Telegram\Bot\Objects\Update;
 
 class ProcessTelegramUpdateJob implements ShouldQueue
@@ -73,6 +74,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             return;
         }
 
+        /** @var TelegramMessage $telegram_message */
         $telegram_message = $this->update->getMessage();
         if (Message::where('uuid', $telegram_message->messageId)->exists()) {
             \Log::warning("Received duplicate message, ignoring:", ['message_id' => $telegram_message->messageId]);
@@ -81,7 +83,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         }
 
         $conversation = $chatService->getConversation(config('llm.sliding_window', -1));
-        $conversation = $this->handleMediaUpload($conversation);
+        $conversation = $this->handleMediaUpload($conversation, $telegram_message);
 
         if (isset($telegram_message->text)) {
             $message = Message::fromTelegramMessage($telegram_message);
@@ -109,7 +111,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         }
     }
 
-    protected function handleMediaUpload(LLMConversation $conversation): LLMConversation
+    protected function handleMediaUpload(LLMConversation $conversation, TelegramMessage $telegram_message): LLMConversation
     {
         $file = null;
         $file_type = null;
@@ -141,8 +143,8 @@ class ProcessTelegramUpdateJob implements ShouldQueue
 
         if (!is_null($file)) {
             $downloaded_file = $this->telegram->downloadFile($file['file_id']);
-            \Log::info("Received photo from telegram: " . $downloaded_file, $this->telegram->getUpdate()->toArray());
-            $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type);
+            \Log::info("Received a file from Telegram: " . $downloaded_file, $this->telegram->getUpdate()->toArray());
+            $file_message = Message::systemFileReceivedMessage($downloaded_file, $file_type, $telegram_message);
             $file_message->save();
             $conversation = $conversation->withMessage($file_message->toLLMMessage());
         }

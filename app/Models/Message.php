@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
-use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\Message\LLMMessage;
 use Telegram\Bot\Objects\Message as TelegramMessage;
 
@@ -104,17 +103,21 @@ MARKDOWN;
         return $msg;
     }
 
-    public static function systemFileReceivedMessage(string $file_path, string $file_type): self
+    public static function systemFileReceivedMessage(string $file_path, string $file_type, Collection|TelegramMessage $telegram_message): self
     {
-        $finfo = finfo_open(FILEINFO_NONE);
-        $file_info = finfo_file($finfo, $file_path);
-        finfo_close($finfo);
+        $file_info = get_file_info($file_path);
+
+        $caption = (isset($telegram_message['caption']) && !empty($telegram_message['caption'])) ? 'Caption: ' . $telegram_message['caption'] . PHP_EOL : '';
+        if ($telegram_message['caption'] ?? false) {
+            $caption = ' captioned "' . $telegram_message['caption'] . '"';
+        }
 
         $prompt = <<<MARKDOWN
-    I have uploaded a $file_type file which was saved to $file_path. The file info is as follows:
+    I have uploaded a $file_type file$caption, which was saved to "$file_path". The file info is as follows:
     "$file_info"
 
-    You can move it to Downloads/Desktop/Documents folder or act on it differently if previously agreed.
+    You can move it to Downloads/Desktop/Documents folder or act on it differently if previously agreed (check caption
+    above if any, and/or refer to previous conversation/memories).
 MARKDOWN;
 
         return self::make([

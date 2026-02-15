@@ -54,6 +54,7 @@ class Telegram implements ChatInterface
             ]);
         } catch (TelegramSDKException $e) {
             \Log::error("Failed to send chat action to Telegram: " . $e->getMessage(), ['trace' => $e->getTrace()]);
+
             return false;
         }
     }
@@ -85,6 +86,7 @@ class Telegram implements ChatInterface
         return $this->client->sendPhoto([
             'chat_id' => $this->chat_id,
             'photo'   => $photo instanceof InputFile ? $photo : InputFile::create($photo),
+            'caption' => $this->generateFileCaption($photo),
         ]);
     }
 
@@ -93,6 +95,7 @@ class Telegram implements ChatInterface
         return $this->client->sendVideo([
             'chat_id' => $this->chat_id,
             'video'   => $video instanceof InputFile ? $video : InputFile::create($video),
+            'caption' => $this->generateFileCaption($video),
         ]);
     }
 
@@ -101,19 +104,26 @@ class Telegram implements ChatInterface
         return $this->client->sendAudio([
             'chat_id' => $this->chat_id,
             'audio'   => $audio instanceof InputFile ? $audio : InputFile::create($audio),
+            'caption' => $this->generateFileCaption($audio),
         ]);
     }
 
     public function sendFile(string|InputFile $document): Message
     {
         return $this->client->sendDocument([
-            'chat_id' => $this->chat_id,
-            'document'   => $document instanceof InputFile ? $document : InputFile::create($document),
+            'chat_id'  => $this->chat_id,
+            'document' => $document instanceof InputFile ? $document : InputFile::create($document),
+            'caption'  => $this->generateFileCaption($document),
         ]);
+    }
+
+    protected function generateFileCaption(string|InputFile $file): string
+    {
+        return $file instanceof InputFile ? $file->getFilename() : basename($file);
     }
 
     public function downloadFile(string $file_id): string
     {
-        return $this->client->downloadFile($file_id, sys_get_temp_dir().'/'.Str::uuid());
+        return $this->client->downloadFile($file_id, sys_get_temp_dir() . '/' . Str::uuid());
     }
 }

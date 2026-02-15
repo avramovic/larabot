@@ -83,10 +83,7 @@ class SendFileTool extends BaseMcpTool
 
     private function guessFileMimeType(string $path): string
     {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $path);
-        finfo_close($finfo);
-        return $mime_type ?: 'application/octet-stream';
+        return get_file_info($path, FILEINFO_MIME_TYPE) ?? 'application/octet-stream';
     }
 
     private function mimeToFileType(string $mime_type): FileType

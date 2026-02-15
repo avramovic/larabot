@@ -72,3 +72,13 @@ if (!function_exists('larabot_dynamic_queue_workers')) {
         return $queue_commands;
     }
 }
+
+if (!function_exists('get_file_info')) {
+    function get_file_info(string $file_path, int $options = FILEINFO_NONE): ?string
+    {
+        $finfo = finfo_open($options);
+        $info = finfo_file($finfo, $file_path);
+        finfo_close($finfo);
+        return $info ?: null;
+    }
+}
