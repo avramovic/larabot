@@ -42,7 +42,7 @@ class Telegram implements ChatInterface
         return $this->client->sendMessage([
             'chat_id'    => $this->chat_id,
             'text'       => $message,
-            'parse_mode' => 'MarkdownV2',
+            'parse_mode' => 'Markdown',
         ]);
     }
 
