@@ -1,6 +1,6 @@
 # Larabot
 
-Larabot is your personal AI assistant that runs directly on your computer—Windows, Linux, or macOS. Imagine having an intelligent helper that can manage your system, automate recurring or scheduled tasks, check your emails, search the web, and basically do anything you can do with the command line. Larabot connects powerful Large Language Models (LLMs) with your local environment, giving you a secure, owner-only interface (via Telegram) to control and automate your digital life. Whether you want to run scripts, monitor processes, fetch information, or build custom workflows, Larabot is designed to be your all-in-one automation and productivity companion.
+Larabot is your personal AI assistant that runs directly on your computer - Windows, Linux, or macOS. Imagine having an intelligent helper that can manage your system, automate recurring or scheduled tasks, check your emails, search the web, and basically do anything you can do with the command line. Larabot connects powerful Large Language Models (LLMs) with your local environment, giving you a secure, owner-only interface (via Telegram) to control and automate your digital life. Whether you want to run scripts, monitor processes, fetch information, or build custom workflows, Larabot is designed to be your all-in-one automation and productivity companion.
 
 For up-to-date documentation and detailed architecture, see the [DeepWiki](https://deepwiki.com/avramovic/larabot).
 
@@ -45,8 +45,7 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
 3. **Create and configure .env:**
    ```bash
    cp .env.example .env
-   # Edit .env with your Telegram bot token, LLM API keys, etc.
-   php artisan larabot:config   # Interactive setup wizard
+   php artisan key:generate
    ```
 4. **Run migrations and seeders:**
    ```bash
@@ -54,7 +53,7 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
    ```
 5. **Configure:**
    ```bash
-   php artisan larabot:config
+   php artisan larabot:config   # Interactive setup wizard
    ```
 5. **Start Telegram listener and queue workers:**
    ```bash
