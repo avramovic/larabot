@@ -4,11 +4,8 @@ namespace App\Providers;
 
 use App\Channels\ChatInterface;
 use App\Channels\Telegram\Telegram;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Mcp\Server\Contracts\Transport;
-use Laravel\Mcp\Server\Transport\HttpTransport;
-use Laravel\Mcp\Server\Transport\StdioTransport;
-use Telegram\Bot\Api;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (config('database.default') === 'sqlite') {
+            DB::statement('PRAGMA journal_mode=WAL');
+            DB::statement('PRAGMA synchronous=NORMAL');
+            DB::statement('PRAGMA busy_timeout=30000');
+            DB::statement('PRAGMA cache_size=-64000');
+        }
     }
 }

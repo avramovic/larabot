@@ -27,7 +27,7 @@ $commands = [
     'MCP server' => Command::from('php artisan serve')->lazy(),
 ];
 
-$commands = array_insert_after_key($commands, 'Telegram', larabot_dynamic_queue_workers(config('queue.processes', 2)));
+$commands = array_insert_after_key($commands, 'Telegram', larabot_dynamic_queue_workers(config('queue.processes', 1)));
 
 return [
     /*
