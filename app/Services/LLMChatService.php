@@ -118,21 +118,21 @@ class LLMChatService
     {
         $tools = [
             // Basic tools
-            (new McpToolAdapter(new WebSearchTool()))->toLlmTool(),
-            (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(),
-            (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(),
-            (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(),
-            (new McpToolAdapter(new SendFileTool()))->toLlmTool(),
+            (new McpToolAdapter(new WebSearchTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SendFileTool()))->toLlmTool(!$tool_execution_session),
             // Scheduler tools
-            (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(),
-            (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(),
-            (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(),
-            (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(),
+            (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(!$tool_execution_session),
             // Memories tool
-            (new McpToolAdapter(new MemoryGetTool()))->toLlmTool(),
-            (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(),
-            (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(),
-            (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(),
+            (new McpToolAdapter(new MemoryGetTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(!$tool_execution_session),
         ];
 
         if ($tool_execution_session) {

@@ -24,7 +24,7 @@ class McpToolAdapter
         $this->chat = app(ChatInterface::class);
     }
 
-    public function toLlmTool(): CallbackToolDefinition
+    public function toLlmTool(bool $debug = false): CallbackToolDefinition
     {
         $inputSchema = [
             'type'       => 'object',
@@ -35,9 +35,14 @@ class McpToolAdapter
             name: $this->tool->name(),
             description: $this->tool->description(),
             inputSchema: $inputSchema,
-            handler: function (array $input): LLMMessageContents {
+            handler: function (array $input) use ($debug): LLMMessageContents {
                 /** @var Response|ResponseFactory $response */
                 \Log::info("[TOOL CALL] {$this->tool->name()} tool called with params: ", $input);
+
+                if ($debug) {
+                    $this->chat->sendMessage('\[running ' . strtr($this->tool->name(), '-', ' '). '...]');
+                }
+
                 try {
                     $this->chat->sendChatAction();
                     $response = $this->tool->handle(new \Laravel\Mcp\Request($input));
