@@ -32,17 +32,25 @@ class SchedulerUpdateTool extends BaseMcpTool
             'enabled'     => ['string'],
         ]);
 
+        /** @var Task $task */
         $task = Task::find($request->get('id'));
         if (!$task) {
             return Response::error('Task not found. Try listing all tasks to get the correct ID.');
         }
 
+        $new_enabled = $this->checkTruthiness($request->get('enabled', $task->enabled));
+        $repeat = $request->get('repeat', $task->repeat);
+
+        if (!$task->enabled && $new_enabled && $task->repeat == 0 && empty($repeat)) {
+            return Response::error('Cannot enable a task with repeat set to 0. Please set repeat to -1 or a positive integer to enable the task.');
+        }
+
         $task->update([
             'schedule'    => $request->get('schedule', $task->schedule),
             'prompt'      => $request->get('prompt', $task->prompt),
-            'repeat'      => $request->get('repeat', $task->repeat),
+            'repeat'      => $repeat,
             'destination' => $request->get('destination', $task->destination),
-            'enabled'     => $this->checkTruthiness($request->get('enabled', $task->enabled)),
+            'enabled'     => $new_enabled,
         ]);
 
         return Response::structured($task->toArray());

@@ -44,7 +44,10 @@ class LarabotScheduleRunCommand extends Command
             $this->line('Running scheduled LLM tasks...');
         }
 
-        Task::where('repeat', 0)->delete();
+        Task::where('repeat', 0)->update([
+            'enabled' => false,
+        ]);
+
         $tasks = Task::where('repeat', '!=', 0)
             ->where('enabled', true)
             ->get();
