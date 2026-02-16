@@ -58,6 +58,10 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             default => $this->notifyUser($response),
         };
 
+        if ($this->task->destination !== 'memory') {
+            $this->saveMemory($response, null, false, "The LLM responded with the following content when executing task #{$this->task->id}:");
+        }
+
         \Log::debug('LLM scheduled task response:', [
             'text' => $response->getLastText(),
         ]);
@@ -81,18 +85,22 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         $this->chat->sendMessage($text);
     }
 
-    protected function saveMemory(LLMResponse|string $response, ?string $title = null): void
+    protected function saveMemory(LLMResponse|string $response, ?string $title = null, bool $important = true, ?string $text_prefix = null): void
     {
         $text = $response instanceof LLMResponse
             ? $response->getLastText() ?? 'LLM responded with empty content.'
             : $response;
 
-        $title = $title ?? "Task #{$this->task->id} executed at " . now()->toDateTimeLocalString();
+        if ($text_prefix) {
+            $text = $text_prefix . PHP_EOL . PHP_EOL . $text;
+        }
+
+        $title = $title ?? "Task #{$this->task->id} executed successfully at " . now()->toDateTimeLocalString();
 
         Memory::create([
             'title'     => $title,
             'contents'  => $text,
-            'important' => false,
+            'important' => $important,
         ]);
     }
 
@@ -103,7 +111,7 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             $this->notifyUser("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
         } else {
             $this->saveMemory("An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
-                "Failed Task #{$this->task->id} at " . now()->toDateTimeLocalString());
+                "Task #{$this->task->id} FAILED at " . now()->toDateTimeLocalString());
         }
     }
 }

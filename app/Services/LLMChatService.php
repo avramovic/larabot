@@ -56,9 +56,14 @@ class LLMChatService
         $messages->prepend(Message::systemIntroductoryMessage());
 
         $llm_messages = [];
+        /** @var Message $message */
         foreach ($messages as $message) {
+            $created_at = $message?->created_at ?? now();
+            $format = now()->format('Y-m-d') !== $created_at->format('Y-m-d') ? '[Y-m-d H:i:s]' : '[H:i:s]';
+            $timestamp = $created_at->format($format);
+
             $llm_messages[] = match ($message->role) {
-                'user' => LLMMessage::createFromUserString($message->contents),
+                'user' => LLMMessage::createFromUserString($timestamp . ' ' . $message->contents),
                 'assistant' => LLMMessage::createFromAssistantString($message->contents),
                 'system' => LLMMessage::createFromSystemString($message->contents),
                 default => throw new \InvalidArgumentException("Invalid message role: {$message->role}"),

@@ -43,6 +43,25 @@ class Message extends Model
         ]);
     }
 
+    protected static function from(string $role, string $contents): self
+    {
+        return self::make([
+            'role'     => $role,
+            'contents' => $contents,
+            'uuid'     => (string) Str::uuid(),
+        ]);
+    }
+
+    public static function fromAssistant(string $message): self
+    {
+        return static::from('assistant', $message);
+    }
+
+    public static function fromUser(string $message): self
+    {
+        return static::from('user', $message);
+    }
+
     public function toLLMMessage(): LLMMessage
     {
         return match ($this->role) {
@@ -75,6 +94,7 @@ class Message extends Model
             'bot_name'           => Setting::get('bot_name'),
             'user_first_name'    => Setting::get('user_first_name'),
             'user_last_name'     => Setting::get('user_last_name'),
+            'model'              => config('models.default_model'),
         ], true);
 
         return self::make([
@@ -103,8 +123,11 @@ MARKDOWN;
         return $msg;
     }
 
-    public static function systemFileReceivedMessage(string $file_path, string $file_type, Collection|TelegramMessage $telegram_message): self
-    {
+    public static function systemFileReceivedMessage(
+        string $file_path,
+        string $file_type,
+        Collection|TelegramMessage $telegram_message
+    ): self {
         $file_info = get_file_info($file_path);
 
         $caption = (isset($telegram_message['caption']) && !empty($telegram_message['caption'])) ? 'Caption: ' . $telegram_message['caption'] . PHP_EOL : '';
