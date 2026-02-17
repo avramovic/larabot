@@ -29,6 +29,7 @@ class SchedulerAddTool extends Tool
     {
         $request->validate([
             'schedule'    => ['required', 'string'],
+            'title'       => ['required', 'string'],
             'prompt'      => ['required', 'string'],
             'repeat'      => ['integer'],
             'destination' => ['string'],
@@ -36,6 +37,7 @@ class SchedulerAddTool extends Tool
 
         $task = Task::create([
             'schedule'    => $request->get('schedule'),
+            'title'       => $request->get('title'),
             'prompt'      => $request->get('prompt'),
             'repeat'      => $request->get('repeat', -1),
             'destination' => $request->get('destination', 'user'),
@@ -53,6 +55,7 @@ class SchedulerAddTool extends Tool
     {
         return [
             'schedule'    => $schema->string()->description('REQUIRED. The cron expression defining the schedule, like: 0 8 * * *')->required(),
+            'title'       => $schema->string()->description('REQUIRED. The task title')->required(),
             'prompt'      => $schema->string()->description('REQUIRED. The prompt to execute on the LLM model.')->required(),
             'destination' => $schema->string()->description('REQUIRED. Where to send task execution result: user/memory/auto')->required(),
             'repeat'      => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.')->default(-1),
