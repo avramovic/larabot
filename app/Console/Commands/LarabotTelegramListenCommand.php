@@ -48,7 +48,8 @@ class LarabotTelegramListenCommand extends Command
 
                 /** @var Update $update */
                 foreach ($updates as $update) {
-                    $this->line("Received Telegram update: {$update->update_id}");
+                    $hi = now()->format('[Y-m-d H:i:s]');
+                    $this->line("$hi Received Telegram update: {$update->update_id}");
                     $telegram->sendChatAction();
                     dispatch(new ProcessTelegramUpdateJob($update));
                     $offset = $update['update_id'];

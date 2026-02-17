@@ -56,7 +56,8 @@ class LarabotScheduleRunCommand extends Command
         foreach ($tasks as $task) {
             if ($task->isDue()) {
                 // Dispatch the task for execution
-                $this->line('Dispatching task #'.$task->id.' for execution.');
+                $hi = now()->format('[Y-m-d H:i:s]');
+                $this->line("$hi Dispatching task #{$task->id} - \"{$task->title}\" for execution.");
                 dispatch(new ExecuteScheduledTaskJob($task));
             }
         }
