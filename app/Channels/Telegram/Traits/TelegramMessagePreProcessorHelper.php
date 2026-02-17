@@ -2,12 +2,18 @@
 
 namespace App\Channels\Telegram\Traits;
 
-trait TelegramMessagePostProcessorHelper
+trait TelegramMessagePreProcessorHelper
 {
-    protected function postProcessMessage(string $text): string
+    protected function preProcessMessage(string $text): string
     {
         // add more post-processing steps here if needed
+        $text = $this->escapeMarkdown($text);
         return $this->convertMarkdownTables($text);
+    }
+
+    private function escapeMarkdown(string $text): string
+    {
+        return str_replace(['_', '*'], ['\_', '\*'], $text);
     }
 
     private function convertMarkdownTables(string $text): string
