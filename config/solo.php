@@ -22,8 +22,8 @@ $commands = [
     'Dashboard'  => Command::from('php artisan larabot:dashboard --solo')->interactive(),
     'Telegram'   => Command::from('php artisan larabot:telegram:listen --daemon'),
     'Scheduler'  => Command::from('php artisan larabot:cron'),
-    'Config'     => Command::from('php artisan larabot:config')->interactive(),
-    'Logs'       => EnhancedTailCommand::file(storage_path('logs/laravel.log')),
+    'Config'     => Command::from('php artisan larabot:config')->interactive()->lazy(),
+    'Logs'       => EnhancedTailCommand::file(storage_path('logs/laravel.log'))->lazy(),
     'MCP server' => Command::from('php artisan serve')->lazy(),
 ];
 
