@@ -59,9 +59,9 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
    ```bash
    php artisan larabot:run
    ```
-6. **Access the dashboard (optional, in a separte terminal):**
+6. **Access the dashboard (WIP, optional, in a separte terminal):**
    ```bash
-   php artisan larabot:dashboard
+   php artisan larabot:dashboard # this does not exist yet
    ```
 
 ---
