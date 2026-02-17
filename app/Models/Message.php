@@ -95,6 +95,7 @@ class Message extends Model
             'user_first_name'    => Setting::get('user_first_name'),
             'user_last_name'     => Setting::get('user_last_name'),
             'model'              => config('models.default_model'),
+            'scheduled_tasks'    => Task::query()->get(),
         ], true);
 
         return self::make([

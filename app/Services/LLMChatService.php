@@ -15,7 +15,7 @@ use App\Mcp\Tools\NotifyUserTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
-use App\Mcp\Tools\SchedulerListTool;
+use App\Mcp\Tools\SchedulerGetTool;
 use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\SendFileTool;
 use App\Mcp\Tools\WebSearchTool;
@@ -129,7 +129,7 @@ class LLMChatService
             (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SendFileTool()))->toLlmTool(!$tool_execution_session),
             // Scheduler tools
-            (new McpToolAdapter(new SchedulerListTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SchedulerGetTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(!$tool_execution_session),

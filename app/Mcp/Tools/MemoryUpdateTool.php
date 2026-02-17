@@ -44,7 +44,7 @@ class MemoryUpdateTool extends Tool
             'important' => $request->get('important', $memory->important),
         ]);
 
-        return Response::structured($memory->toArray());
+        return Response::text(sprintf('Memory %d updated successfully.', $memory->id));
     }
 
     /**

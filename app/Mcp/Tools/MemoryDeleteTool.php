@@ -33,10 +33,9 @@ class MemoryDeleteTool extends Tool
             return Response::error('Memory not found. Try searching memories get the correct ID.');
         }
 
-        $memData = $memory->toArray();
         $memory->delete();
 
-        return Response::structured($memData);
+        return Response::text(sprintf('Memory %d deleted successfully.', $memory->id));
     }
 
     /**

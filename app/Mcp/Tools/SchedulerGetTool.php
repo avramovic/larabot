@@ -9,13 +9,13 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
-class SchedulerListTool extends Tool
+class SchedulerGetTool extends Tool
 {
     /**
      * The tool's description.
      */
     protected string $description = <<<'MARKDOWN'
-        List scheduled tasks.
+        Get scheduled task details by ID.
     MARKDOWN;
 
     /**
@@ -23,9 +23,13 @@ class SchedulerListTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
-        $tasks = Task::all();
+        $request->validate([
+            'id' => 'required|integer|exists:tasks,id',
+        ]);
 
-        return Response::structured(['tasks' => $tasks->toArray()]);
+        $task = Task::find($request->get('id'));
+
+        return Response::structured($task->toArray());
     }
 
     /**
@@ -36,7 +40,7 @@ class SchedulerListTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'reason' => $schema->string()->description('REQUIRED. Reason to list scheduled tasks.')->nullable(),
+            'id' => $schema->integer()->description('REQUIRED. Task ID.')->nullable(),
         ];
     }
 }

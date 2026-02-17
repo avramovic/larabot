@@ -53,7 +53,7 @@ class SchedulerUpdateTool extends BaseMcpTool
             'enabled'     => $new_enabled,
         ]);
 
-        return Response::structured($task->toArray());
+        return Response::text(sprintf('Task %d updated successfully.', $task->id));
     }
 
     /**

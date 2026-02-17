@@ -14,7 +14,7 @@ use App\Mcp\Tools\NotifyUserTool;
 use App\Mcp\Tools\OperatingSystemInfoTool;
 use App\Mcp\Tools\SchedulerAddTool;
 use App\Mcp\Tools\SchedulerDeleteTool;
-use App\Mcp\Tools\SchedulerListTool;
+use App\Mcp\Tools\SchedulerGetTool;
 use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\SendFileTool;
 use App\Mcp\Tools\WebSearchTool;
@@ -57,7 +57,7 @@ class LarabotServer extends Server
         SchedulerUpdateTool::class,
         SchedulerAddTool::class,
         SchedulerDeleteTool::class,
-        SchedulerListTool::class,
+        SchedulerGetTool::class,
         //
         MemoryUpdateTool::class,
         MemorySaveTool::class,

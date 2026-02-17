@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property int $id
  * @property string $schedule
+ * @property string $title
  * @property string $prompt
  * @property int $repeat
  * @property bool $enabled
@@ -20,9 +21,12 @@ class Task extends Model
     //
     protected $guarded = [];
 
+    public function cron(): CronExpression
+    {
+        return new CronExpression($this->schedule);
+    }
     public function isDue(): bool
     {
-        $cron = new CronExpression($this->schedule);
-        return $cron->isDue();
+        return $this->cron()->isDue();
     }
 }

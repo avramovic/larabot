@@ -3,6 +3,7 @@
 namespace App\Channels\Telegram;
 
 use App\Channels\ChatInterface;
+use App\Channels\Telegram\Traits\TelegramMessagePostProcessorHelper;
 use App\Models\Setting;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -15,6 +16,8 @@ use Telegram\Bot\Objects\User;
 
 class Telegram implements ChatInterface
 {
+    use TelegramMessagePostProcessorHelper;
+
     public Api $client;
     public ?string $chat_id;
     public ?string $owner_id;
@@ -39,6 +42,8 @@ class Telegram implements ChatInterface
      */
     public function sendMessage(string $message): Message
     {
+        $message = $this->postProcessMessage($message);
+
         return $this->client->sendMessage([
             'chat_id'    => $this->chat_id,
             'text'       => $message,

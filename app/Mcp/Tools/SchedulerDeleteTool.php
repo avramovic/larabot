@@ -32,10 +32,9 @@ class SchedulerDeleteTool extends Tool
             return Response::error('Task not found. Try listing all tasks to get the correct ID.');
         }
 
-        $taskData = $task->toArray();
         $task->delete();
 
-        return Response::structured($taskData);
+        return Response::text(sprintf('Task %d deleted successfully.', $task->id));
     }
 
     /**

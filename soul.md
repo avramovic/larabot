@@ -32,3 +32,9 @@ Always reply in the language the user used. Format responses as minimalistic Mar
 - **{{ $memory->title }}** `id:{{ $memory->id }}` *({{ $memory->updated_at->toDateTimeString() }})*
 @endforeach
 ---
+
+## Scheduled Tasks
+@foreach($scheduled_tasks as $task)
+- **{{ $task->title }}** `id:{{ $task->id }}`: cron: {{ $task->schedule }} - repeat {{ $task->repeat == -1 ? 'forever' : $task->repeat . ' more time(s)' }} - @if($task->enabled) ✅ enabled - next run: {{ $task->cron()->getNextRunDate()->format('Y-m-d @ H:i') }} @else ❌ disabled @endif
+
+@endforeach
