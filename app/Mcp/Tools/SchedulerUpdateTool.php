@@ -25,12 +25,12 @@ class SchedulerUpdateTool extends BaseMcpTool
     {
         $request->validate([
             'id'          => ['required', 'integer', 'exists:tasks,id'],
-            'schedule'    => ['string'],
-            'title' =\u003e ['nullable', 'string'],
-            'prompt'      => ['string'],
-            'repeat'      => ['integer'],
-            'destination' => ['string'],
-            'enabled'     => ['string'],
+            'schedule'    => ['nullable','string'],
+            'title'       => ['nullable', 'string'],
+            'prompt'      => ['nullable', 'string'],
+            'repeat'      => ['nullable', 'integer'],
+            'destination' => ['nullable', 'string'],
+            'enabled'     => ['nullable', 'string'],
         ]);
 
         /** @var Task $task */
@@ -68,7 +68,7 @@ class SchedulerUpdateTool extends BaseMcpTool
         return [
             'id'          => $schema->integer()->description('REQUIRED. ID of the task')->required(),
             'schedule'    => $schema->string()->description('The cron expression defining the schedule.'),
-            'title'      => $schema->string()->description('Task title for easier identification.'),
+            'title'       => $schema->string()->description('Task title for easier identification.'),
             'prompt'      => $schema->string()->description('The prompt to execute on the LLM model.'),
             'repeat'      => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
             'destination' => $schema->string()->description('Where to send task execution result: user/memory/auto')->default('user'),
