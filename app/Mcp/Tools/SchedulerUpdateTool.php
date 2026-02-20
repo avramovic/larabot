@@ -26,7 +26,7 @@ class SchedulerUpdateTool extends BaseMcpTool
         $request->validate([
             'id'          => ['required', 'integer', 'exists:tasks,id'],
             'schedule'    => ['string'],
-            'title'       => ['title'],
+            'title' =\u003e ['nullable', 'string'],
             'prompt'      => ['string'],
             'repeat'      => ['integer'],
             'destination' => ['string'],
