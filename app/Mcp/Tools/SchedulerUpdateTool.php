@@ -68,6 +68,7 @@ class SchedulerUpdateTool extends BaseMcpTool
         return [
             'id'          => $schema->integer()->description('REQUIRED. ID of the task')->required(),
             'schedule'    => $schema->string()->description('The cron expression defining the schedule.'),
+            'title'      => $schema->string()->description('Task title for easier identification.'),
             'prompt'      => $schema->string()->description('The prompt to execute on the LLM model.'),
             'repeat'      => $schema->integer()->description('How many times the task should repeat according to the schedule. -1 for infinite.'),
             'destination' => $schema->string()->description('Where to send task execution result: user/memory/auto')->default('user'),
