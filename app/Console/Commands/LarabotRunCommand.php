@@ -23,9 +23,9 @@ class LarabotRunCommand extends Command
         $this->info('Starting Larabot supervisor... (Ctrl+C to stop)');
 
         $configs = [
-            ['name' => 'telegram', 'command' => ['php', 'artisan', 'larabot:telegram:listen', '--daemon']],
-            ['name' => 'queue', 'command' => ['php', 'artisan', 'queue:work'], 'processes' => config('queue.processes', 1)],
-            ['name' => 'cron', 'command' => ['php', 'artisan', 'larabot:cron']],
+            ['name' => 'telegram', 'command' => [PHP_BINARY, 'artisan', 'larabot:telegram:listen', '--daemon']],
+            ['name' => 'queue', 'command' => [PHP_BINARY, 'artisan', 'queue:work'], 'processes' => config('queue.processes', 1)],
+            ['name' => 'cron', 'command' => [PHP_BINARY, 'artisan', 'larabot:cron']],
         ];
 
         foreach ($configs as $config) {
