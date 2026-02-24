@@ -6,6 +6,7 @@ use App\Channels\ChatInterface;
 use App\Models\Memory;
 use App\Models\Message;
 use App\Models\Task;
+use App\Models\TaskExecutionLog;
 use App\Services\LLMChatService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -13,6 +14,11 @@ use Illuminate\Support\Str;
 use Soukicz\Llm\LLMConversation;
 use Soukicz\Llm\LLMResponse;
 use Soukicz\Llm\Message\LLMMessage;
+use Soukicz\Llm\Message\LLMMessageArrayData;
+use Soukicz\Llm\Message\LLMMessageContents;
+use Soukicz\Llm\Message\LLMMessageText;
+use Soukicz\Llm\Message\LLMMessageToolResult;
+use Soukicz\Llm\Message\LLMMessageToolUse;
 
 class ExecuteScheduledTaskJob implements ShouldQueue
 {
@@ -52,15 +58,23 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 
         match ($this->task->destination) {
             'memory' => $this->saveMemory($response),
-//            'file' => file_put_contents(base_path(Str::slug("Task #{$thixs->task->id} executed at " . now()->toDateTimeLocalString())),
-//                $response->getLastText() ?? 'LLM responded with empty content.'),
             'auto' => null,
             default => $this->notifyUser($response),
         };
 
-        if ($this->task->destination !== 'memory') {
-            $this->saveMemory($response, null, false, "The LLM responded with the following content when executing task #{$this->task->id}:");
+        $outputText = 'LLM responded with empty content.';
+        try {
+            $outputText = $response->getLastText() ?? $outputText;
+        } catch (\Throwable) {
+            // keep fallback
         }
+
+        TaskExecutionLog::create([
+            'task_id'     => $this->task->id,
+            'output_text' => $outputText,
+            'tool_calls'  => $this->extractToolCalls($response),
+            'status'      => 'success',
+        ]);
 
         \Log::debug('LLM scheduled task response:', [
             'text' => $response->getLastText(),
@@ -104,9 +118,65 @@ class ExecuteScheduledTaskJob implements ShouldQueue
         ]);
     }
 
+    /**
+     * @return array<int, array{tool: string, input: array, result: string|array|null}>
+     */
+    protected function extractToolCalls(LLMResponse $response): array
+    {
+        $messages = $response->getConversation()->getMessages();
+        $ordered  = [];
+        $results  = [];
+
+        foreach ($messages as $message) {
+            foreach ($message->getContents()->getMessages() as $content) {
+                if ($content instanceof LLMMessageToolUse) {
+                    $ordered[] = [
+                        'id'    => $content->getId(),
+                        'tool'  => $content->getName(),
+                        'input' => $content->getInput(),
+                    ];
+                    $results[$content->getId()] = null;
+                }
+                if ($content instanceof LLMMessageToolResult) {
+                    $results[$content->getId()] = $this->serializeToolResultContent($content->getContent());
+                }
+            }
+        }
+
+        return array_map(fn (array $o): array => [
+            'tool'   => $o['tool'],
+            'input'  => $o['input'],
+            'result' => $results[$o['id']] ?? null,
+        ], $ordered);
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function serializeToolResultContent(LLMMessageContents $content): string|array
+    {
+        $out = [];
+        foreach ($content->getMessages() as $part) {
+            if ($part instanceof LLMMessageText) {
+                return $part->getText();
+            }
+            if ($part instanceof LLMMessageArrayData) {
+                return $part->getData();
+            }
+        }
+
+        return '';
+    }
+
     public function failed(\Throwable $exception): void
     {
-        // handle failure, e.g. memorize the error, notify owner, etc.
+        TaskExecutionLog::create([
+            'task_id'     => $this->task->id,
+            'output_text' => "Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage(),
+            'tool_calls'  => null,
+            'status'      => 'failed',
+        ]);
+
         if ($this->task->destination === 'user') {
             $this->notifyUser("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
         } else {

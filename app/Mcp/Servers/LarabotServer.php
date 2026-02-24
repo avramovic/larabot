@@ -17,6 +17,9 @@ use App\Mcp\Tools\SchedulerDeleteTool;
 use App\Mcp\Tools\SchedulerGetTool;
 use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\SendFileTool;
+use App\Mcp\Tools\TaskExecutionLogDeleteTool;
+use App\Mcp\Tools\TaskExecutionLogGetTool;
+use App\Mcp\Tools\TaskExecutionLogListTool;
 use App\Mcp\Tools\WebSearchTool;
 use Laravel\Mcp\Server;
 
@@ -58,6 +61,10 @@ class LarabotServer extends Server
         SchedulerAddTool::class,
         SchedulerDeleteTool::class,
         SchedulerGetTool::class,
+        //
+        TaskExecutionLogListTool::class,
+        TaskExecutionLogGetTool::class,
+        TaskExecutionLogDeleteTool::class,
         //
         MemoryUpdateTool::class,
         MemorySaveTool::class,

@@ -18,6 +18,9 @@ use App\Mcp\Tools\SchedulerDeleteTool;
 use App\Mcp\Tools\SchedulerGetTool;
 use App\Mcp\Tools\SchedulerUpdateTool;
 use App\Mcp\Tools\SendFileTool;
+use App\Mcp\Tools\TaskExecutionLogDeleteTool;
+use App\Mcp\Tools\TaskExecutionLogGetTool;
+use App\Mcp\Tools\TaskExecutionLogListTool;
 use App\Mcp\Tools\WebSearchTool;
 use App\Models\Chat;
 use App\Models\Message;
@@ -133,6 +136,10 @@ class LLMChatService
             (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(!$tool_execution_session),
+            // Task execution logs
+            (new McpToolAdapter(new TaskExecutionLogListTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new TaskExecutionLogGetTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new TaskExecutionLogDeleteTool()))->toLlmTool(!$tool_execution_session),
             // Memories tool
             (new McpToolAdapter(new MemoryGetTool()))->toLlmTool(!$tool_execution_session),
             (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(!$tool_execution_session),

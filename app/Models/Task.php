@@ -29,4 +29,9 @@ class Task extends Model
     {
         return $this->cron()->isDue();
     }
+
+    public function executionLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskExecutionLog::class);
+    }
 }
