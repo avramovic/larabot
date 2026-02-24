@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // Show "[running tool-name...]" messages in chat when tools are invoked (normal chat only, not task execution).
+    'show_tool_execution_logs_in_chat' => (bool) env('SHOW_TOOL_EXECUTION_LOGS', true),
+
 ];

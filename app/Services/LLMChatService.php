@@ -124,27 +124,29 @@ class LLMChatService
 
     public function getTools(bool $tool_execution_session = false): array
     {
+        $showToolLogs = config('app.show_tool_execution_logs_in_chat', true) && ! $tool_execution_session;
+
         $tools = [
             // Basic tools
-            (new McpToolAdapter(new WebSearchTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new ImageSearchTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new HttpRequestTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new SendFileTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new WebSearchTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new ImageSearchTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new ExecuteCommandTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new HttpRequestTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new SendFileTool()))->toLlmTool($showToolLogs),
             // Scheduler tools
-            (new McpToolAdapter(new SchedulerGetTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new SchedulerGetTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new SchedulerAddTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new SchedulerUpdateTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new SchedulerDeleteTool()))->toLlmTool($showToolLogs),
             // Task execution logs
-            (new McpToolAdapter(new TaskExecutionLogListTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new TaskExecutionLogGetTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new TaskExecutionLogDeleteTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new TaskExecutionLogListTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new TaskExecutionLogGetTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new TaskExecutionLogDeleteTool()))->toLlmTool($showToolLogs),
             // Memories tool
-            (new McpToolAdapter(new MemoryGetTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new MemorySaveTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool(!$tool_execution_session),
-            (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool(!$tool_execution_session),
+            (new McpToolAdapter(new MemoryGetTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new MemorySaveTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new MemoryUpdateTool()))->toLlmTool($showToolLogs),
+            (new McpToolAdapter(new MemoryDeleteTool()))->toLlmTool($showToolLogs),
         ];
 
         if ($tool_execution_session) {

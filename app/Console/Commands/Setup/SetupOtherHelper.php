@@ -19,6 +19,7 @@ trait SetupOtherHelper
                 str_starts_with($selected, 'Brave Search') => $this->simpleTextSetup('BRAVE_SEARCH_API_KEY', 'Brave Search API Key'),
                 str_starts_with($selected, 'Sliding Window') => $this->simpleTextSetup('SLIDING_WINDOW_SIZE', 'Sliding Window Size', 'number'),
                 str_starts_with($selected, 'Cache Prompts') => $this->simpleConfirmSetup('CACHE_PROMPTS', 'Cache Prompts'),
+                str_starts_with($selected, 'Show tool execution') => $this->simpleConfirmSetup('SHOW_TOOL_EXECUTION_LOGS', 'Show tool execution logs in chat'),
                 default => true,
             };
 
@@ -39,6 +40,7 @@ trait SetupOtherHelper
             'Brave Search API (' . ucwords($this->env('BRAVE_SEARCH_API_KEY', '[not set]')) . ')',
             'Sliding Window Size (' . $this->env('SLIDING_WINDOW_SIZE') . ')',
             'Cache Prompts (' . ($this->env('CACHE_PROMPTS') === 'true' ? 'Enabled' : 'Disabled') . ')',
+            'Show tool execution logs in chat (' . ($this->env('SHOW_TOOL_EXECUTION_LOGS') === 'true' ? 'Yes' : 'No') . ')',
             'Back',
         ];
     }

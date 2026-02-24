@@ -179,9 +179,6 @@ class ExecuteScheduledTaskJob implements ShouldQueue
 
         if ($this->task->destination === 'user') {
             $this->notifyUser("❌ Failed to execute scheduled task #{$this->task->id}: " . $exception->getMessage());
-        } else {
-            $this->saveMemory("An error occurred while executing scheduled task #{$this->task->id}: " . $exception->getMessage(),
-                "Task #{$this->task->id} FAILED at " . now()->toDateTimeLocalString());
         }
     }
 }

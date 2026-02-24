@@ -49,6 +49,7 @@ class LarabotConfigCommand extends BaseLarabotCommand
             'SLIDING_WINDOW_SIZE'  => config('llm.sliding_window'),
             'CACHE_PROMPTS'        => config('llm.cache_prompts') ? 'true' : 'false',
             'APP_TIMEZONE'         => config('app.timezone'),
+            'SHOW_TOOL_EXECUTION_LOGS' => config('app.show_tool_execution_logs_in_chat', true) ? 'true' : 'false',
         ];
     }
 
