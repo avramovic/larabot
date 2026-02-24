@@ -42,6 +42,13 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
    ```bash
    composer install
    ```
+
+On Windows you'll have to install it without Solo TUI:
+
+   ```bash
+   composer install --no-dev
+   ```
+
 3. **Create and configure .env:**
    ```bash
    cp .env.example .env
@@ -75,7 +82,7 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
 ---
 
 ## Security Note
-- ⚠️ The MCP server can execute system commands. Use only in trusted, sandboxed, or development environments.
+- ⚠️ The bot can execute system commands. Use only in trusted, sandboxed, or development environments.
 ---
 
 ## License
