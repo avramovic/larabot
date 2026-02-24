@@ -43,30 +43,30 @@ See [DeepWiki Architecture](https://deepwiki.com/avramovic/larabot/2-architectur
    composer install
    ```
 
-On Windows you'll have to install it without Solo TUI:
+3. On Windows you'll have to install it without Solo TUI:
 
    ```bash
    composer install --no-dev
    ```
 
-3. **Create and configure .env:**
+4. **Create and configure .env:**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
-4. **Run migrations and seeders:**
+5. **Run migrations and seeders:**
    ```bash
    php artisan migrate --seed
    ```
-5. **Configure:**
+6. **Configure:**
    ```bash
    php artisan larabot:config   # Interactive setup wizard
    ```
-5. **Start Telegram listener and queue workers:**
+7. **Start Telegram listener, cron dispatcher and queue worker(s):**
    ```bash
    php artisan larabot:run
    ```
-6. **Access the dashboard (WIP, optional, in a separte terminal):**
+8. **Access the dashboard (WIP, optional, in a separte terminal):**
    ```bash
    php artisan larabot:dashboard # this does not exist yet
    ```
