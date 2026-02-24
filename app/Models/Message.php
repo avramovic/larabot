@@ -14,6 +14,8 @@ use Telegram\Bot\Objects\Message as TelegramMessage;
  * @property string $role
  * @property string $contents
  * @property string $uuid
+ * @property string|null $channel_type
+ * @property string|null $channel_conversation_id
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
@@ -21,14 +23,42 @@ class Message extends Model
 {
     protected $guarded = [];
 
+    public const CHANNEL_TELEGRAM = 'telegram';
 
     public static function fromTelegramMessage(TelegramMessage|Collection $message, string $role = 'user'): self
     {
+        $chatId = $message->getChat()?->getId();
         return self::make([
-            'role'       => $role,
-            'contents'   => $message->text ?? '',
-            'uuid'       => $message->messageId,
-            'created_at' => now(),
+            'role'                     => $role,
+            'contents'                 => $message->text ?? '',
+            'uuid'                     => $message->messageId,
+            'channel_type'             => self::CHANNEL_TELEGRAM,
+            'channel_conversation_id'  => $chatId !== null ? (string) $chatId : null,
+            'created_at'               => now(),
+        ]);
+    }
+
+    /**
+     * Channel-agnostic "file received" user message (path, type, optional caption).
+     */
+    public static function forFileReceived(string $filePath, string $fileType, ?string $caption = null): self
+    {
+        $file_info = get_file_info($filePath);
+        $captionPart = $caption !== null && $caption !== '' ? ' captioned "' . $caption . '"' : '';
+        $captionLine = $caption !== null && $caption !== '' ? 'Caption: ' . $caption . PHP_EOL : '';
+
+        $prompt = <<<MARKDOWN
+    I have uploaded a {$fileType} file{$captionPart}, which was saved to "{$filePath}". The file info is as follows:
+    "{$file_info}"
+
+    You can move it to Downloads/Desktop/Documents folder or act on it differently if previously agreed (check caption
+    above if any, and/or refer to previous conversation/memories).
+MARKDOWN;
+
+        return self::make([
+            'role'     => 'user',
+            'contents' => $prompt,
+            'uuid'     => (string) Str::uuid(),
         ]);
     }
 
@@ -129,26 +159,8 @@ MARKDOWN;
         string $file_type,
         Collection|TelegramMessage $telegram_message
     ): self {
-        $file_info = get_file_info($file_path);
+        $caption = $telegram_message['caption'] ?? null;
 
-        $caption = (isset($telegram_message['caption']) && !empty($telegram_message['caption'])) ? 'Caption: ' . $telegram_message['caption'] . PHP_EOL : '';
-        if ($telegram_message['caption'] ?? false) {
-            $caption = ' captioned "' . $telegram_message['caption'] . '"';
-        }
-
-        $prompt = <<<MARKDOWN
-    I have uploaded a $file_type file$caption, which was saved to "$file_path". The file info is as follows:
-    "$file_info"
-
-    You can move it to Downloads/Desktop/Documents folder or act on it differently if previously agreed (check caption
-    above if any, and/or refer to previous conversation/memories).
-MARKDOWN;
-
-        return self::make([
-            'role'     => 'user',
-            'contents' => $prompt,
-            'uuid'     => Str::uuid(),
-        ]);
+        return self::forFileReceived($file_path, $file_type, $caption);
     }
-
 }

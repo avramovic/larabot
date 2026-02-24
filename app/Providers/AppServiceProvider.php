@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Channels\ChannelResolver;
 use App\Channels\ChatInterface;
 use App\Channels\Telegram\Telegram;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ChatInterface::class, function ($app) {
-           return new Telegram();
+            return new Telegram();
         });
+
+        $this->app->singleton(ChannelResolver::class, ChannelResolver::class);
     }
 
     /**

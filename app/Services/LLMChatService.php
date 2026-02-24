@@ -47,14 +47,29 @@ class LLMChatService
         $this->agent = new LLMAgentClient();
     }
 
-    public static function getConversation(int $sliding_window = -1): LLMConversation
-    {
-        if ($sliding_window === -1 || empty($sliding_window)) {
-            $messages = Message::where('role', '!=', 'system')->orderBy('created_at', 'desc')->get()->reverse();
-        } else {
-            $messages = Message::where('role', '!=', 'system')->orderBy('created_at', 'desc')
-                ->take($sliding_window)->get()->reverse();
+    public static function getConversation(
+        int $sliding_window = -1,
+        ?string $channelType = null,
+        ?string $channelConversationId = null,
+        ?int $upToMessageId = null
+    ): LLMConversation {
+        $query = Message::where('role', '!=', 'system');
+
+        if ($channelType !== null) {
+            $query->where('channel_type', $channelType);
         }
+        if ($channelConversationId !== null) {
+            $query->where('channel_conversation_id', $channelConversationId);
+        }
+        if ($upToMessageId !== null) {
+            $query->where('id', '<=', $upToMessageId);
+        }
+
+        $query->orderBy('created_at', 'desc');
+        if ($sliding_window !== -1 && ! empty($sliding_window)) {
+            $query->take($sliding_window);
+        }
+        $messages = $query->get()->reverse();
 
         $messages->prepend(Message::systemIntroductoryMessage());
 
