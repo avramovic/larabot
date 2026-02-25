@@ -58,7 +58,8 @@ trait SetupLLMModelHelper
 
     private function fetchModels(): array
     {
-        $response = Http::get(config('llm.providers.custom.base_url') . '/models');
+        $url = config('llm.providers.custom.base_url') . '/models';
+        $response = Http::get($url);
         if ($response->successful()) {
             $models = $response->json()['data'] ?? [];
 
@@ -66,7 +67,7 @@ trait SetupLLMModelHelper
                 return $model['id'] ?? null;
             }, $models);
         } else {
-            $this->error('Failed to fetch models from custom provider. Please enter model name manually.');
+            $this->error("Failed to fetch models from {$url} - Please enter model name manually.");
             return [];
         }
     }
