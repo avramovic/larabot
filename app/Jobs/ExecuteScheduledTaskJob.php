@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Channels\ChatInterface;
 use App\Models\Memory;
 use App\Models\Message;
+use App\Models\Setting;
 use App\Models\Task;
 use App\Models\TaskExecutionLog;
 use App\Services\LLMChatService;
@@ -91,10 +92,14 @@ class ExecuteScheduledTaskJob implements ShouldQueue
             ? $response->getLastText() ?? "❌ Task #{$this->task->id} executed, but no response received."
             : $response;
 
+        $chatId = Setting::get('telegram_chat_id');
+
         Message::create([
-            'role'     => 'assistant',
-            'contents' => $text,
-            'uuid'     => (string) Str::uuid(),
+            'role'                    => 'assistant',
+            'contents'                => $text,
+            'uuid'                    => (string) Str::uuid(),
+            'channel_type'            => Message::CHANNEL_TELEGRAM,
+            'channel_conversation_id' => $chatId !== null ? (string) $chatId : null,
         ]);
         $this->chat->sendMessage($text);
     }
