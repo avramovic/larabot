@@ -58,7 +58,7 @@ if (!function_exists('array_insert_after_key')) {
 if (!function_exists('larabot_dynamic_queue_workers')) {
     function larabot_dynamic_queue_workers($queue_processes): array
     {
-        $queue_work = Command::from('php artisan queue:work');
+        $queue_work = Command::from(PHP_BINARY . ' artisan queue:work');
         if (config('queue.default') === 'sync') {
             $queue_work = $queue_work->lazy();
         }

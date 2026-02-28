@@ -19,12 +19,12 @@ if (!class_exists('\SoloTerm\Solo\Manager')) {
 
 $commands = [
 //        'Chat' => Command::from('php artisan larabot:chat')->interactive(),
-    'Dashboard'  => Command::from('php artisan larabot:dashboard --solo')->interactive(),
-    'Telegram'   => Command::from('php artisan larabot:telegram:listen --daemon'),
-    'Scheduler'  => Command::from('php artisan larabot:cron'),
-    'Config'     => Command::from('php artisan larabot:config')->interactive()->lazy(),
+    'Dashboard'  => Command::from(PHP_BINARY . ' artisan larabot:dashboard --solo')->interactive(),
+    'Telegram'   => Command::from(PHP_BINARY . ' artisan larabot:telegram:listen --daemon'),
+    'Scheduler'  => Command::from(PHP_BINARY . ' artisan larabot:cron'),
+    'Config'     => Command::from(PHP_BINARY . ' artisan larabot:config')->interactive()->lazy(),
     'Logs'       => EnhancedTailCommand::file(storage_path('logs/laravel.log'))->lazy(),
-    'MCP server' => Command::from('php artisan serve')->lazy(),
+    'MCP server' => Command::from(PHP_BINARY . ' artisan serve')->lazy(),
 ];
 
 $commands = array_insert_after_key($commands, 'Telegram', larabot_dynamic_queue_workers(config('queue.processes', 1)));

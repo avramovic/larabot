@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class LarabotDashboardCommand extends BaseLarabotCommand
 {
-    private const SOLO_HINT = 'Use arrow keys to switch between tabs. Click or focus the Dashboard tab to use the interactive menu.';
+    private const SOLO_HINT = 'Use arrow keys to switch between tabs. Press "i" on interactive tabs to enter interactive mode. Press "s" to start/stop process in the selected tab.';
 
     protected $signature = 'larabot:dashboard {--solo}';
 
