@@ -4,6 +4,7 @@ namespace App\Mcp\Tools;
 
 use App\Mcp\BaseMcpTool;
 use App\Models\Message;
+use App\Models\Setting;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -28,11 +29,14 @@ class NotifyUserTool extends BaseMcpTool
         ]);
 
         $message = $request->get('message');
+        $chatId = Setting::get('telegram_chat_id');
 
         Message::create([
-            'role' => 'assistant',
-            'contents' => $message,
-            'uuid' => \Str::uuid(),
+            'role'                    => 'assistant',
+            'contents'                => $message,
+            'uuid'                    => (string) \Str::uuid(),
+            'channel_type'            => Message::CHANNEL_TELEGRAM,
+            'channel_conversation_id' => $chatId !== null ? (string) $chatId : null,
         ]);
 
         $this->chat->sendMessage($message);
